@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호그와트 마법약 연구실</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+KR:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1208;--parch:#f5efd6;
+  --gold:#b8860b;--gold2:#d4a017;--gold3:#f0c040;
+  --green2:#2d7a4f;--green3:#5daa7a;
+  --blue2:#1a4d7a;--blue3:#4a90c4;
+  --red2:#8b2020;--red3:#c94040;
+  --purple2:#5a2080;--purple3:#9a50c0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:#0d0b08;color:var(--parch)}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;transition:opacity .5s,transform .5s;overflow-y:auto;z-index:1;-webkit-overflow-scrolling:touch}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateY(20px)}
+#screen-game{justify-content:flex-start;padding:8px 8px 40px}
+.panel{position:relative;z-index:2;background:linear-gradient(150deg,#f7f1db,#ede4c2,#e2d8ae);border-radius:3px;box-shadow:0 0 0 1px #b8860b,0 0 0 3px #7a5500,0 8px 40px rgba(0,0,0,.65);width:100%;max-width:640px}
+.pi{position:relative;z-index:2;padding:16px 14px}
+@media(min-width:520px){.pi{padding:22px 26px}}
+.title-en{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:2px;opacity:.75}
+.title-kr{font-family:'Noto Serif KR',serif;font-size:23px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:5px}
+.divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--gold)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.divider span{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.15em}
+.stats-bar{display:flex;background:#1a1208;border-radius:2px;overflow:hidden;margin-bottom:12px;border:1px solid var(--gold)}
+.si{flex:1;text-align:center;padding:7px 3px;border-right:1px solid rgba(184,134,11,.25)}
+.si:last-child{border:none}
+.sv{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold3)}@media(min-width:400px){.sv{font-size:16px}}
+.sl{font-size:9px;letter-spacing:.08em;color:rgba(245,239,214,.4);text-transform:uppercase;margin-top:1px}
+.prog-row{display:flex;gap:3px;margin-bottom:10px}
+.pp{flex:1;height:4px;border-radius:2px;background:rgba(26,18,8,.25);border:1px solid rgba(184,134,11,.22);transition:all .4s}
+.pp.done{background:var(--green3);border-color:var(--green2)}
+.pp.active{background:var(--gold2);border-color:var(--gold)}
+.sdots{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.sd{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid rgba(184,134,11,.3);color:rgba(26,18,8,.35);font-family:'Noto Serif KR',serif}
+.sd.done{border-color:var(--green2);color:var(--green2);background:rgba(29,158,117,.07)}
+.sd.active{border-color:var(--gold);color:var(--gold2);background:rgba(184,134,11,.1);font-weight:500}
+.rbox{display:flex;gap:12px;align-items:flex-start;padding:11px;background:rgba(26,18,8,.05);border:1px solid rgba(184,134,11,.2);border-radius:2px;margin-bottom:10px}
+.remo{font-size:36px;flex-shrink:0}
+.rname{font-family:'Cinzel',serif;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.rdesc{font-family:'Noto Serif KR',serif;font-size:11px;color:#4a3a1a;line-height:1.55;word-break:keep-all}
+.story-box{background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.22);border-radius:2px;padding:11px 13px;margin-bottom:11px;position:relative}
+.story-box::before{content:'❝';position:absolute;top:-9px;left:12px;font-size:20px;color:var(--gold2);background:linear-gradient(150deg,#f7f1db,#ede4c2);padding:0 4px}
+.sp{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--gold);margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.sp::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+.st{font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.75;font-style:italic}
+.clue-box{background:rgba(184,134,11,.07);border:1px solid rgba(184,134,11,.22);border-radius:2px;padding:10px 13px;margin-bottom:10px}
+.clue-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;color:var(--gold);margin-bottom:7px}
+.clue-item{font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.65;padding:2px 0;display:flex;gap:7px;align-items:flex-start}
+.clue-item::before{content:'◆';color:var(--gold2);font-size:8px;margin-top:4px;flex-shrink:0}
+.ing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:8px}@media(min-width:420px){.ing-grid{grid-template-columns:repeat(3,1fr)}}
+.ic{border:1.5px solid rgba(184,134,11,.28);border-radius:2px;padding:9px 5px;cursor:pointer;text-align:center;transition:all .18s;background:rgba(245,241,219,.55)}
+.ic:hover{border-color:var(--gold2);background:rgba(184,134,11,.1);transform:translateY(-2px)}
+.ic.ok{border-color:var(--green2);background:rgba(45,122,79,.1)}
+.ic.wrong{border-color:var(--red2);background:rgba(139,32,32,.08);animation:shake .4s}
+.ic .ie{font-size:22px;display:block;margin-bottom:3px}
+.ic .in{font-family:'Noto Serif KR',serif;font-size:10px;font-weight:500;color:var(--ink)}
+.ic .ih{font-size:9px;color:#6a5a3a;margin-top:1px}
+.sol-row{display:flex;gap:7px;margin-bottom:8px}
+.scard{flex:1;border:1.5px solid rgba(184,134,11,.28);border-radius:2px;padding:9px 6px;cursor:pointer;text-align:center;transition:all .18s;background:rgba(245,241,219,.55)}
+.scard:hover{border-color:var(--blue3);background:rgba(74,144,196,.07);transform:translateY(-2px)}
+.scard.ok{border-color:var(--green2);background:rgba(45,122,79,.1)}
+.scard.wrong{border-color:var(--red2);animation:shake .4s}
+.scard2{border:1.5px solid rgba(184,134,11,.28);border-radius:2px;padding:8px 10px;cursor:pointer;transition:all .18s;background:rgba(245,241,219,.55)}
+.scard2:hover{border-color:var(--blue3);background:rgba(74,144,196,.07);transform:translateX(3px)}
+.scard2.ok{border-color:var(--green2);background:rgba(45,122,79,.1)}
+.scard2.wrong{border-color:var(--red2);animation:shake .4s}
+.scard .se{font-size:18px;display:block;margin-bottom:2px}
+.scard .sn{font-family:'Noto Serif KR',serif;font-size:11px;font-weight:500;color:var(--ink)}
+.scard .sd2{font-size:9px;color:#6a5a3a;margin-top:1px}
+.fb{font-family:'Noto Serif KR',serif;font-size:12px;text-align:center;min-height:15px;margin-top:4px;transition:all .25s}
+.fb.good{color:var(--green2)}.fb.bad{color:var(--red2)}.fb.hint{color:var(--gold2)}
+.mini-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+canvas{display:block;border-radius:2px;touch-action:none;border:1px solid rgba(184,134,11,.22);cursor:crosshair}
+.hint-banner{width:100%;background:rgba(184,134,11,.07);border:1px solid rgba(184,134,11,.18);border-radius:2px;padding:7px 12px;font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a1a;text-align:center;line-height:1.5;margin-bottom:8px}
+.timer-wrap{width:100%;height:10px;background:rgba(26,18,8,.15);border-radius:5px;border:1px solid rgba(184,134,11,.18);overflow:hidden;margin-bottom:6px}
+.timer-bar{height:100%;border-radius:5px;transition:background .3s}
+.stop-btn{font-family:'Cinzel',serif;font-size:16px;font-weight:700;letter-spacing:.08em;padding:12px 28px;border-radius:2px;border:2px solid #8b2020;background:linear-gradient(135deg,#3d0a0a,#6b1515);color:#f5b0b0;cursor:pointer;transition:all .18s;box-shadow:0 4px 18px rgba(90,15,15,.5)}
+.stop-btn:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.stop-btn:not(:disabled):hover{transform:scale(1.05);box-shadow:0 6px 22px rgba(139,32,32,.6)}
+.stop-btn:not(:disabled):active{transform:scale(.96)}
+.btn-gold{font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.08em;padding:11px 28px;border-radius:2px;border:1.5px solid var(--gold);background:linear-gradient(135deg,#221800,#382400);color:var(--gold3);cursor:pointer;transition:all .18s;box-shadow:0 3px 12px rgba(0,0,0,.3)}
+.btn-gold:hover{background:linear-gradient(135deg,#382400,#503400)}
+.btn-green{font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:.08em;padding:11px 28px;border-radius:2px;border:1.5px solid var(--green2);background:linear-gradient(135deg,#091a10,#133020);color:var(--green3);cursor:pointer;transition:all .18s}
+.btn-green:hover{background:linear-gradient(135deg,#133020,#1f4a30)}
+.tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.tag-bp{background:rgba(90,32,128,.14);color:var(--purple3);border:1px solid var(--purple2)}
+.tag-bt{background:rgba(29,158,117,.14);color:var(--green3);border:1px solid var(--green2)}
+.tag-ba{background:rgba(184,134,11,.14);color:var(--gold2);border:1px solid var(--gold)}
+.tag-bg{background:rgba(26,77,122,.14);color:var(--blue3);border:1px solid var(--blue2)}
+.con-box{background:rgba(26,18,8,.05);border:1px solid rgba(184,134,11,.16);border-radius:2px;padding:11px 13px;margin-top:10px}
+.con-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;color:var(--gold);margin-bottom:7px}
+.con-row{display:flex;gap:7px;align-items:flex-start;margin-bottom:5px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.55}
+.job-wrap{border:1px solid rgba(184,134,11,.22);border-radius:2px;padding:11px 13px;margin-top:9px;display:flex;gap:10px;align-items:flex-start;background:rgba(26,18,8,.04)}
+.je{font-size:22px;flex-shrink:0}
+.jt{font-family:'Noto Serif KR',serif;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.jd{font-family:'Noto Serif KR',serif;font-size:11px;color:#5a4a2a;line-height:1.5}
+.eff-badge{display:inline-block;font-family:'Cinzel',serif;font-size:14px;font-weight:700;padding:6px 20px;border-radius:2px;letter-spacing:.08em}
+.eff-S{background:linear-gradient(135deg,#ffd700,#b8860b);color:#1a0d00;border:1.5px solid #ffd700;box-shadow:0 0 14px rgba(255,215,0,.35)}
+.eff-A{background:linear-gradient(135deg,#5daa7a,#1a4a2e);color:#e0f8ec;border:1.5px solid #5daa7a}
+.eff-B{background:linear-gradient(135deg,#4a90c4,#0d2b4a);color:#e0f0ff;border:1.5px solid #4a90c4}
+.eff-C{background:linear-gradient(135deg,#888,#444);color:#eee;border:1.5px solid #888}
+.eff-F{background:linear-gradient(135deg,#8b2020,#3d0a0a);color:#ffc0c0;border:1.5px solid #8b2020}
+.final-sc{font-family:'Cinzel',serif;font-size:46px;font-weight:700;color:var(--gold3);text-shadow:0 2px 16px rgba(184,134,11,.4)}
+.notif{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-60px);z-index:999;font-family:'Cinzel',serif;font-size:12px;font-weight:600;padding:8px 18px;border-radius:2px;border:1px solid;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+.notif.good{background:#091a10;color:var(--green3);border-color:var(--green2)}
+.notif.bad{background:#1f0808;color:#e87070;border-color:var(--red2)}
+.notif.show{transform:translateX(-50%) translateY(0)}
+.score-pop{position:fixed;font-family:'Cinzel',serif;font-size:20px;font-weight:700;pointer-events:none;z-index:998;animation:score-up .85s ease forwards}
+@keyframes score-up{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-55px) scale(1.15)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes slidein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.slidein{animation:slidein .35s ease forwards}
+.pf{animation:float 2.8s ease-in-out infinite}
+
+/* ── 파티클 & 이펙트 ── */
+.particle{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:particle-fly var(--dur,.8s) ease-out forwards}
+@keyframes particle-fly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx,0),var(--ty,-80px)) scale(0)}}
+.flash-overlay{position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:0;transition:opacity .08s;border-radius:0}
+.flash-overlay.active{opacity:1}
+.pulse-border{position:fixed;inset:0;pointer-events:none;z-index:9991;border:6px solid transparent;border-radius:0;transition:border-color .15s,box-shadow .15s}
+.pulse-border.green{border-color:rgba(45,170,120,.6);box-shadow:inset 0 0 40px rgba(45,170,120,.2),0 0 40px rgba(45,170,120,.3);animation:border-pulse 1s ease-in-out infinite}
+.pulse-border.red{border-color:rgba(200,60,60,.5);box-shadow:inset 0 0 30px rgba(200,60,60,.15)}
+@keyframes border-pulse{0%,100%{box-shadow:inset 0 0 40px rgba(45,170,120,.2),0 0 40px rgba(45,170,120,.3)}50%{box-shadow:inset 0 0 70px rgba(45,170,120,.35),0 0 70px rgba(45,170,120,.5)}}
+.snape-cheer{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);z-index:9992;background:linear-gradient(135deg,#221800,#382400);border:1.5px solid var(--gold);border-radius:3px;padding:10px 20px;font-family:'Noto Serif KR',serif;font-size:13px;color:var(--gold3);font-style:italic;text-align:center;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:90vw;pointer-events:none}
+.snape-cheer.show{transform:translateX(-50%) translateY(0)}
+.ingredient-drop{position:absolute;pointer-events:none;z-index:100;animation:ing-drop .6s ease-in forwards}
+@keyframes ing-drop{0%{opacity:1;transform:translateY(-30px) scale(1)}100%{opacity:0;transform:translateY(40px) scale(.4)}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="flash-overlay" id="flash-overlay"></div>
+<div class="pulse-border" id="pulse-border"></div>
+<div class="snape-cheer" id="snape-cheer"></div>
+
+<!-- OPEN -->
+<div class="screen" id="screen-open">
+  <div class="panel slidein" style="max-width:520px">
+    <div class="pi" style="text-align:center">
+      <div class="title-en">Hogwarts School of Witchcraft and Wizardry</div>
+      <div style="font-size:80px;margin:14px 0 10px" class="pf">⚗️</div>
+      <div class="title-kr" style="font-size:26px;margin-bottom:6px">마법약 연구실</div>
+      <div style="font-family:'Noto Serif KR',serif;font-size:14px;color:#5a4a2a;margin-bottom:6px;line-height:1.7">스네이프 교수와 함께 진짜 마법약을 만들어라!</div>
+      <div class="story-box" style="text-align:left;margin:16px 0 20px">
+        <div class="sp">세베루스 스네이프 교수</div>
+        <div class="st">"마법약이란 정밀한 과학이자 정확한 기술이다. 솥으로 영광을 끓이고, 약병 마개로 죽음을 막는 방법을 — 너희가 충분히 머리가 좋다면 — 가르쳐 주겠다."</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
+        <div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.2);border-radius:4px;padding:8px 14px;font-family:'Noto Serif KR',serif;font-size:12px;color:#4a3a1a;text-align:center">🔪<br>재료 썰기</div>
+        <div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.2);border-radius:4px;padding:8px 14px;font-family:'Noto Serif KR',serif;font-size:12px;color:#4a3a1a;text-align:center">🌀<br>가마솥 젓기</div>
+        <div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.2);border-radius:4px;padding:8px 14px;font-family:'Noto Serif KR',serif;font-size:12px;color:#4a3a1a;text-align:center">🌡️<br>온도 맞추기</div>
+        <div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.2);border-radius:4px;padding:8px 14px;font-family:'Noto Serif KR',serif;font-size:12px;color:#4a3a1a;text-align:center">🧪<br>나만의 물약</div>
+      </div>
+      <button class="btn-gold" onclick="startGame()" style="width:100%;padding:16px;font-size:16px;letter-spacing:.1em">✨ 실험실 입장 ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="screen hidden" id="screen-story">
+  <div class="panel slidein" style="max-width:520px">
+    <div class="pi">
+      <div class="title-en" id="st-en"></div>
+      <div class="title-kr" style="font-size:20px;margin-bottom:3px" id="st-name"></div>
+      <div style="font-size:46px;text-align:center;margin:8px 0" id="st-emo"></div>
+      <div id="st-snape"></div>
+      <div id="st-clues"></div>
+      <button class="btn-gold" onclick="goToGame()" style="width:100%;padding:14px;font-size:15px;margin-top:14px">⚗️ 실험 시작!</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="screen hidden" id="screen-game">
+  <div class="panel" style="max-width:640px;margin:auto">
+    <div class="pi">
+      <div class="stats-bar">
+        <div class="si"><div class="sv" id="stat-sc">0</div><div class="sl">점수</div></div>
+        <div class="si"><div class="sv" id="stat-ri">1/4</div><div class="sl">마법약</div></div>
+        <div class="si"><div class="sv" id="stat-ms">0</div><div class="sl">실수</div></div>
+        <div class="si"><div class="sv" id="stat-eff" style="color:#aaa">—</div><div class="sl">효능등급</div></div>
+      </div>
+      <div class="prog-row" id="prog"></div>
+      <div class="sdots" id="sdots"></div>
+      <div id="gc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen hidden" id="screen-result">
+  <div class="panel slidein" style="max-width:520px">
+    <div class="pi" style="text-align:center">
+      <div id="res-emo" style="font-size:54px;margin-bottom:8px;animation:pop .45s cubic-bezier(.34,1.56,.64,1) both"></div>
+      <div id="res-title" style="font-family:'Cinzel',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px"></div>
+      <div id="res-eff" style="margin-bottom:5px"></div>
+      <div id="res-eff-desc" style="font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a2a;margin-bottom:10px;line-height:1.6"></div>
+      <div id="res-con" style="text-align:left"></div>
+      <div id="res-job" style="text-align:left"></div>
+      <div id="res-snape" style="margin-top:10px"></div>
+      <button class="btn-gold" onclick="nextPotion()" id="res-btn" style="margin-top:14px;width:100%;padding:12px"></button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="screen hidden" id="screen-final">
+  <div class="panel slidein" style="max-width:520px">
+    <div class="pi" style="text-align:center">
+      <div style="font-size:54px;margin-bottom:6px" class="pf">🏆</div>
+      <div class="title-en">Potions Class — Complete</div>
+      <div class="title-kr" style="margin-bottom:4px">마법약 연구 완료!</div>
+      <div class="final-sc" id="fin-sc"></div>
+      <div id="fin-grade" style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:.08em;margin-top:3px"></div>
+      <div id="fin-potions" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0;text-align:center"></div>
+      <div id="fin-quote"></div>
+      <div class="con-box" style="text-align:left;margin-bottom:14px">
+        <div class="con-title">◆ 핵심 개념 정리 ◆</div>
+        <div class="con-row"><span class="tag tag-bp">용질</span>다른 물질에 녹는 물질 — 소금, 설탕, 마법 가루</div>
+        <div class="con-row"><span class="tag tag-bt">용매</span>다른 물질을 녹이는 물질 — 물, 알코올, 오일</div>
+        <div class="con-row"><span class="tag tag-ba">용액</span>용질이 용매에 고르게 녹아 만들어진 혼합물</div>
+        <div class="con-row"><span class="tag tag-bg">용해도</span>온도·용매 종류에 따라 녹을 수 있는 양이 달라요!</div>
+      </div>
+      <button class="btn-green" onclick="init()" style="width:100%;padding:12px">다시 도전하기 ↺</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ── STARS ──
+(()=>{
+  const c=document.getElementById('stars'),x=c.getContext('2d');
+  c.width=innerWidth;c.height=innerHeight;
+  for(let i=0;i<180;i++){
+    x.beginPath();x.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.3,0,Math.PI*2);
+    x.fillStyle=`rgba(255,255,255,${.12+Math.random()*.5})`;x.fill();
+  }
+})();
+
+// ── SOUND ENGINE (Web Audio API) ──
+let AC=null;
+function getAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
+function beep(freq,dur,type='sine',vol=0.18,delay=0){
+  try{
+    const a=getAC(),o=a.createOscillator(),g=a.createGain();
+    o.connect(g);g.connect(a.destination);
+    o.type=type;o.frequency.setValueAtTime(freq,a.currentTime+delay);
+    g.gain.setValueAtTime(0,a.currentTime+delay);
+    g.gain.linearRampToValueAtTime(vol,a.currentTime+delay+.01);
+    g.gain.exponentialRampToValueAtTime(.001,a.currentTime+delay+dur);
+    o.start(a.currentTime+delay);o.stop(a.currentTime+delay+dur+.01);
+  }catch(e){}
+}
+function playSuccess(){
+  beep(523,.12,'sine',.18,0);beep(659,.12,'sine',.18,.13);
+  beep(784,.12,'sine',.18,.26);beep(1047,.25,'sine',.22,.39);
+}
+function playWrong(){beep(220,.2,'sawtooth',.1,0);beep(196,.25,'sawtooth',.08,.05);}
+function playClick(){beep(600,.06,'sine',.08,0);}
+function playStop(perfect){if(perfect){beep(784,.1,'sine',.15,0);beep(1047,.2,'sine',.2,.12);}else{beep(440,.15,'sine',.12,0);}}
+function playComplete(){[523,659,784,1047,1319].forEach((f,i)=>beep(f,.15,'sine',.2,i*.1));beep(1568,.35,'sine',.25,.55);}
+
+// 썰기 사운드 — 빠른 클릭음
+function playChop(){
+  const freq=300+Math.random()*200;
+  beep(freq,.04,'sawtooth',.06,0);
+}
+// 젓기 사운드 — 부드러운 물 소리
+let stirSoundTimer=0;
+function playStirSound(){
+  const now=Date.now();
+  if(now-stirSoundTimer<120)return; // 120ms 쿨다운
+  stirSoundTimer=now;
+  beep(180+Math.random()*60,.08,'sine',.04,0);
+  beep(220+Math.random()*40,.06,'sine',.03,.04);
+}
+// 방향 전환 사운드
+function playDirChange(){
+  beep(880,.08,'sine',.12,0);beep(660,.1,'sine',.1,.09);
+}
+// 가열 사운드 — 글글글
+let heatSoundTimer=0;
+function playHeatTick(){
+  const now=Date.now();
+  if(now-heatSoundTimer<200)return;
+  heatSoundTimer=now;
+  beep(80+Math.random()*40,.05,'sawtooth',.025,0);
+}
+// 목표 근처 경고음
+function playNearTarget(){beep(1200,.08,'sine',.1,0);}
+// 타이머 카운트다운
+function playTimerBeep(n){
+  if(n<=3)beep(n<=1?880:660,.1,'sine',.15,0);
+}
+
+// ── PARTICLE SYSTEM ──
+function burst(x2,y2,colors,count=18,spread=120){
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div');
+    d.className='particle';
+    const angle=Math.random()*Math.PI*2;
+    const dist=30+Math.random()*spread;
+    const tx=Math.cos(angle)*dist,ty=Math.sin(angle)*dist-40;
+    const size=4+Math.random()*8;
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    const dur=.5+Math.random()*.5;
+    d.style.cssText=`left:${x2}px;top:${y2}px;width:${size}px;height:${size}px;background:${col};--tx:${tx}px;--ty:${ty}px;--dur:${dur}s`;
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),dur*1000+100);
+  }
+}
+function burstSuccess(x2,y2){
+  burst(x2,y2,['#f0c040','#ffd700','#5daa7a','#ffffff','#f5b0b0'],22,130);
+}
+function burstWrong(x2,y2){
+  burst(x2,y2,['#c94040','#ff6060','#8b2020'],10,70);
+}
+function starBurst(){
+  // 화면 여러 곳에서 동시에 터짐
+  const pts=[[innerWidth*.3,innerHeight*.3],[innerWidth*.7,innerHeight*.3],[innerWidth*.5,innerHeight*.5],[innerWidth*.2,innerHeight*.6],[innerWidth*.8,innerHeight*.6]];
+  pts.forEach((p,i)=>setTimeout(()=>burst(p[0],p[1],['#f0c040','#ffd700','#fff','#5daa7a','#9a50c0'],16,100),i*80));
+}
+
+// ── FLASH EFFECTS ──
+function flashGreen(){
+  const f=ge('flash-overlay');if(!f)return;
+  f.style.background='rgba(45,170,120,.18)';f.classList.add('active');
+  setTimeout(()=>f.classList.remove('active'),200);
+}
+function flashRed(){
+  const f=ge('flash-overlay');if(!f)return;
+  f.style.background='rgba(200,60,60,.15)';f.classList.add('active');
+  setTimeout(()=>f.classList.remove('active'),200);
+}
+function setPulseBorder(color){
+  const p=ge('pulse-border');if(!p)return;
+  p.className='pulse-border'+(color?' '+color:'');
+}
+
+// ── SNAPE CHEER SYSTEM ──
+const SNAPE_CHEERS={
+  correct:["...허, 생각보다 낫군.", "계속 그렇게 해라.", "...뭐, 나쁘지 않아.", "이번엔 실망시키지 않았군.","그래, 맞다."],
+  wrong:["또 틀렸나. 예상했다.","힌트를 읽었나? 읽었다면 틀릴 수 없는데.", "집중하거라.", "...한숨이 나온다."],
+  stir_good:["반경을 잘 유지하고 있군.", "그래, 그 방향이다.", "계속..."],
+  stir_dir:["방향을 틀렸다. 다시.","반시계와 시계를 구분 못하나?"],
+  chop_fast:["더 빠르게. 잘게 썰수록 잘 녹는다!", "서두르거라!", "시간이 없다!"],
+  stop_perfect:["...완벽한 온도다. 믿기 어렵군.","딱 맞췄다. 이번만큼은 인정한다."],
+  stop_ok:["...뭐, 충분하다.","아슬아슬했지만 통과다."],
+  complete:["...이 물약은 쓸 만하군.","생각보다 훌륭하다. 인정하지.","...허, 진짜로 해냈군."]
+};
+let cheerTimeout=null;
+function snapeCheer(type){
+  const msgs=SNAPE_CHEERS[type];if(!msgs)return;
+  const msg=msgs[Math.floor(Math.random()*msgs.length)];
+  const el=ge('snape-cheer');if(!el)return;
+  el.textContent='"'+msg+'"';
+  el.classList.add('show');
+  clearTimeout(cheerTimeout);
+  cheerTimeout=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ── HELPERS ──
+function ge(id){return document.getElementById(id);}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  const el=ge(id);
+  if(el){el.classList.remove('hidden');}
+}
+function notif(msg,type='good'){
+  const n=ge('notif');
+  if(!n)return;
+  n.textContent=msg;n.className='notif '+type+' show';
+  setTimeout(()=>{if(n)n.classList.remove('show');},1800);
+}
+function scorePop(pts,col){
+  const d=document.createElement('div');d.className='score-pop';
+  d.textContent='+'+pts;d.style.color=col||'#f0c040';
+  d.style.left=(35+Math.random()*30)+'%';d.style.top='38%';
+  document.body.appendChild(d);setTimeout(()=>d.remove(),900);
+}
+function safeSet(id,val){const e=ge(id);if(e)e.textContent=val;}
+function safeHtml(id,val){const e=ge(id);if(e)e.innerHTML=val;}
+
+// ── EFFICACY ──
+// 초등학생 기준: 실수 1회당 3점 감점(기존 8), 감점 상한 25점(기존 60)
+// 등급 기준도 대폭 완화: S≥80, A≥62, B≥42, C≥22, F 미만
+// ingPenalty: 잘못 고른 재료 수 (0=완벽, 1=하나 틀림, 2=둘 다 틀림)
+// ingCorrect: 재료를 정확히 골랐는지 여부
+function calcEff(cs,ss,hs,miss,ingPen){
+  const ip=ingPen||0;
+  const cs2=Math.min(cs+15,100);
+  const ss2=Math.min(ss+15,100);
+  const hs2=Math.min(hs+15,100);
+  const raw=cs2*.3+ss2*.4+hs2*.3;
+  const pen=Math.min(miss*3,20);
+  // 재료 페널티: 잘못 고른 재료 1개당 20점 감점 (매우 큰 영향)
+  const ingPenScore=Math.min(ip*20,40);
+  const f=Math.max(0,raw-pen-ingPenScore);
+  return f>=80?'S':f>=62?'A':f>=42?'B':f>=22?'C':'F';
+}
+function effDesc(e,name){
+  return({S:`${name}이(가) 완벽하게 제조됐어요! 최고 효능의 마법약이 탄생했습니다! 🌟`,
+          A:`${name}이(가) 훌륭하게 만들어졌어요! 용질이 용매에 잘 녹아 좋은 효능을 발휘해요.`,
+          B:`${name}이(가) 잘 만들어졌어요! 기본 효능은 충분히 발휘되는 좋은 용액입니다.`,
+          C:`${name}이(가) 완성됐어요. 조금 더 연습하면 더 좋은 마법약을 만들 수 있어요!`,
+          F:`${name} 제조가 아쉬웠어요. 다시 도전하면 훨씬 잘할 수 있을 거예요!`})[e];
+}
+
+// ── DATA ──
+const ING={
+  nettles:{n:'마른 쐐기풀',e:'🌿',h:'건조된 초록 식물 줄기',
+    desc:'햇빛에 말린 쐐기풀. 물에 잘 녹는 식물 성분을 품고 있어 물(용매)에 녹이면 초록빛 용액이 된다. 잘게 썰수록 물에 더 잘 녹는다!'},
+  slughorn:{n:'뿔 민달팽이',e:'🐌',h:'끈적한 분비물을 내는 달팽이',
+    desc:'마법 달팽이의 촉수와 껍데기. 기름 성분을 많이 포함하여 물보다 오일에 잘 녹는다. 물에 넣으면 섞이지 않고 둥둥 뜬다.'},
+  fangsnake:{n:'뱀의 송곳니',e:'🦷',h:'독사의 단단한 이빨',
+    desc:'독사의 뾰족한 이빨. 단단한 광물 성분으로 이루어져 있어 어떤 용매에도 잘 녹지 않는다. 마법약의 보조 재료로만 쓰인다.'},
+  bluecrystal:{n:'파란 수정 가루',e:'💎',h:'차갑게 빛나는 파란 결정',
+    desc:'물에 녹으면 파란빛을 내는 특수 결정. 소금처럼 물(용매)에 잘 녹는다. 균등하게 잘라야 고른 농도의 용액이 만들어진다.'},
+  ghostpowder:{n:'유령 가루',e:'🌫️',h:'반투명하게 빛나는 흰 분말',
+    desc:'유령의 기운이 담긴 가루. 알코올에만 녹으며 물에 넣으면 둥둥 떠다닌다. 용매 선택이 매우 까다로운 특수 용질이다.'},
+  dragonscale:{n:'용의 비늘',e:'🐉',h:'단단하고 뜨거운 파충류 비늘',
+    desc:'용의 딱딱한 비늘. 아주 고온에서만 녹는 성질이 있어 일반 마법약 제조에는 잘 쓰이지 않는다. 주로 내열 마법약에 쓰인다.'},
+  sunleaf:{n:'황금 잎',e:'🍃',h:'햇빛처럼 반짝이는 금빛 식물 잎',
+    desc:'태양의 기운이 담긴 희귀한 잎. 일반 물에는 녹지 않고 특별히 정제된 황금 정화수(용매)에만 용해된다. 대각선으로 잘라야 효능이 살아난다.'},
+  moonleaf:{n:'달빛 이끼',e:'🌙',h:'밤에만 자라는 은빛 이끼',
+    desc:'보름달 빛에서만 자라는 신비로운 이끼. 차가운 물에 잘 녹으며 따뜻하게 하면 효능이 파괴된다. 수면 관련 마법약에 사용된다.'},
+  wolfsbane_herb:{n:'투구꽃 잎',e:'🌾',h:'보랏빛을 띠는 독성 식물',
+    desc:'늑대인간 마법약의 핵심 재료. 이름처럼 늑대(wolf)를 무력화(bane)시키는 성분을 담고 있다. 오직 차가운 정화수(냉각 마법수)에만 제대로 용해된다. 뜨거운 물에 넣으면 독성 성분이 변질된다!'},
+  spiderleg:{n:'거미 다리',e:'🕷️',h:'8개의 관절이 있는 절지동물 기관',
+    desc:'마법 거미의 다리. 키틴질이라는 단단한 성분으로 이루어져 있어 어떤 용매에도 잘 녹지 않는 단단한 물질이다. 특수 마법약의 구조 재료로 쓰인다.'},
+  bezoar:{n:'베조아르 돌',e:'🪨',h:'염소 위에서 채취한 돌',
+    desc:'대부분의 독을 무력화하는 신기한 돌. 가루로 갈면 물에 어느 정도 녹는다. 1학년 마법약 수업에서 스네이프 교수가 질문으로 낸 재료!'},
+  lacewing:{n:'레이스윙 파리',e:'🦋',h:'날개가 레이스처럼 섬세한 마법 곤충',
+    desc:'폴리주스 마법약의 핵심 재료. 알코올 용액에 잘 녹는 지방 성분을 가지고 있다. 21일간 천천히 졸여야 성분이 완전히 용출된다.'},
+  ashwinder:{n:'애쉬와인더 알',e:'🥚',h:'불꽃 뱀의 알',
+    desc:'아모르텐시아(사랑의 묘약) 재료 중 하나. 뜨거운 온도에서 알코올에 가장 잘 녹는다. 잘못 보관하면 30초 만에 부화해 화재를 일으킨다!'},
+  unicornhair:{n:'유니콘 털',e:'🦄',h:'은빛으로 빛나는 마법 생물 털',
+    desc:'유니콘의 꼬리털. 정화수에 잘 녹아 은빛 용액이 된다. 치유 효과가 있어 다양한 마법약에 활용된다. 살아있는 유니콘에서만 채취할 수 있는 귀한 재료!'},
+  phoenixash:{n:'불사조 재',e:'🔥',h:'불사조가 부활할 때 남긴 재',
+    desc:'불사조가 타오를 때 생기는 재. 뜨거운 황금 정화수에 녹아 주홍빛 용액이 된다. 불멸과 재생의 효능을 담고 있다. 매우 희귀하다.'},
+  stardust:{n:'별빛 가루',e:'⭐',h:'떨어진 별에서 채취한 은빛 가루',
+    desc:'밤하늘에서 떨어진 유성에서 채취한 신비로운 가루. 차가운 물에 녹으면 반짝이는 용액이 된다. 예지력과 관련된 마법약에 사용된다.'},
+  thundermoss:{n:'번개 이끼',e:'⚡',h:'폭풍 속에서만 자라는 노란 이끼',
+    desc:'번개를 맞아야만 자라는 특이한 이끼. 알코올에 잘 녹으며 전기 에너지를 담고 있다. 활력과 에너지를 높이는 마법약에 사용된다.'},
+  dragontear:{n:'용의 눈물',e:'💧',h:'붉은빛이 도는 신비로운 액체',
+    desc:'용이 흘리는 귀한 눈물. 물에 한 방울만 넣어도 강렬한 붉은빛 용액이 된다. 용기와 힘을 주는 마법약의 핵심 재료다.'},
+  shadowpowder:{n:'어둠 가루',e:'🌑',h:'달이 없는 밤에 채취한 검은 가루',
+    desc:'완전한 어둠 속에서만 모을 수 있는 신비로운 가루. 기름에 잘 녹아 검은 용액이 된다. 투명화나 은폐 마법약에 사용된다.'},
+  crystalrose:{n:'수정 장미 꽃잎',e:'🌹',h:'수정처럼 투명한 장미 꽃잎',
+    desc:'마법 온실에서만 자라는 투명한 장미의 꽃잎. 따뜻한 물에 녹으면 분홍빛 용액이 된다. 감정과 기억에 관련된 마법약에 쓰인다.'},
+  froglegs:{n:'개구리 다리',e:'🐸',h:'마법 연못의 초록 개구리 다리',
+    desc:'마법 연못에 사는 특별한 개구리의 다리. 물에 잘 녹으며 점프력과 민첩성을 높이는 마법약에 사용된다. 폴리주스 마법약에도 쓰인다!'}
+};
+const SOL={
+  water:{n:'정화수',e:'💧',
+    d:'물 (H₂O)',
+    desc:'가장 흔하고 기본적인 용매. 소금·설탕·식물 성분처럼 설탕·소금·식물 성분 같은 것을 잘 녹인다. 우리 몸의 70%가 이 물질이에요!',
+    hint:'식물 줄기, 결정 가루 같은 것에 잘 어울려요'},
+  oil:{n:'마법 기름',e:'🫙',
+    d:'식물성 오일',
+    desc:'물과 섞이지 않는 특수 용매. 기름 성분을 녹인다. 물에 안 녹는 것도 기름에는 녹는 경우가 있어요! 물에 넣으면 층이 분리되는 것처럼, 기름도 자기와 비슷한 성분만 녹인다.',
+    hint:'기름 성분에 어울려요. 식물이나 결정 가루는 잘 안 녹아요'},
+  alcohol:{n:'마법 에탄올',e:'🍾',
+    d:'알코올 용액',
+    desc:'물과 기름의 성질을 모두 가진 용매. 향료·수지·일부 유기 성분을 잘 녹인다. 향수를 만들 때 알코올을 쓰는 것과 같은 원리!',
+    hint:'향기 나는 성분, 특이한 마법 성분에 어울려요'},
+  golden_water:{n:'황금 정화수',e:'✨',
+    d:'정제된 마법수',
+    desc:'특수 마법으로 정화된 물. 일반 물에는 녹지 않는 희귀한 귀금속 성분이나 마법 식물 성분을 용해할 수 있다. 펠릭스 펠리시스처럼 귀한 마법약 전용!',
+    hint:'황금빛·귀한 성분에만 어울려요. 일반 재료에는 효과 없음'},
+  cold_water:{n:'차가운 정화수',e:'🧊',
+    d:'냉각 마법수',
+    desc:'마법으로 차갑게 유지되는 특수 물. 뜨거운 물에서 독성이 변질되는 식물 성분을 안전하게 녹일 수 있다. 투구꽃처럼 열에 민감한 용질 전용!',
+    hint:'열에 약한 독초·냉기 성분에 어울려요. 따뜻한 물에선 절대 안 됨'}
+};
+
+const RECIPES=[
+  {
+    id:'bc',name:'종기 치료약',emo:'🍶',potionColor:'#3dba6a',en:'Cure for Boils',
+    story_snape:'자, 첫 번째 과제다. 이 마법약은 1학년이 처음 배우는 기초 약이지만 잘못 만들면 냄비가 녹아내린다 — 네빌 롱보텀처럼.',
+    lore:'<b>종기 치료약</b> — 피부 종기를 없애는 기초 마법약. 연두빛이 나야 하며 쐐기풀 냄새가 난다. 해리 포터가 1학년 첫 수업에서 만들었다. 레시피에는 두 가지 재료가 필요하다: [말린 식물 줄기]와 [독사의 단단한 이빨].',
+    wrongReactions:{
+      slughorn:'달팽이는 이 약에 들어가지 않는다. 기름 성분은 물에 녹지 않아 층이 분리된다는 것도 모르나?',
+      moonleaf:'달빛 이끼는 차가운 물 전용이다. 이 약의 온도에서 효능이 파괴된다 — 기초도 모르는군.',
+      spiderleg:'거미 다리는 단단한 키틴 성분으로 물에 전혀 녹지 않는다. 이 솥 안에서 그냥 떠다닐 것이다.',
+      dragonscale:'용의 비늘은 고온에서나 녹는다. 지금 이 온도에서는 그냥 쇳덩어리를 넣은 것과 다름없다.',
+      bezoar:'베조아르는 독을 해독하는 돌이지, 용질이 아니다 — 녹이는 것이 아니라 삼키는 것이다.',
+      ashwinder:'애쉬와인더 알은 30초 후에 부화한다! 당장 꺼내지 않으면 실험실이 불탄다!'
+    },
+    correctReaction:'쐐기풀과 뱀의 송곳니 — 맞다. 두 용질이 물에 고르게 녹으면 연두빛 용액이 완성된다.',
+    cSolutes:['nettles','fangsnake'],cSolvent:'water',
+    aIng:['nettles','slughorn','fangsnake','moonleaf','spiderleg','dragonscale','bezoar','ashwinder'],
+    aSol:['water','oil','alcohol'],needCount:2,
+    solHint:'이 약은 물에 잘 녹는 성분들로 만든다. 가장 기본적인 용매를 떠올려보거라.',
+    res_S:'두 용질이 물에 균일하게 용해됐군. 예상보다 낫다.',
+    res_F:'이 냄새는... 네가 잘못된 재료를 넣었군. 이걸 종기에 바르면 오히려 더 커진다.',
+    chop:{t:'rapid',time:8,lbl:'⏱ 8초 안에 최대한 빠르게 클릭!'},
+    stir:{seq:['ccw','cw','ccw','cw'],radius:55,lbl:'↺↻ 반시계 → 시계 → 반시계 → 시계!'},
+    heat:{target:55,range:14,dir:1,lbl:'🔥 55°C에서 STOP!'},
+    job:{e:'💊',t:'약학 연구원',d:'약 성분(용질)을 물(용매)에 정확히 녹여 약을 만들어요!'},
+    con:['bp|용질|🌿🦷 쐐기풀+송곳니 — 두 용질이 함께 물에 녹아야 효능 완성','bt|용매|💧 물 — 두 용질을 고르게 녹이는 용매','ba|용액|🟢 종기 치료약 — 두 용질이 용매에 완전히 녹은 혼합물','bg|용해도|잘게 썰수록 표면적 증가 → 물과 닿는 면적이 넓어져 더 빨리 녹아요!']
+  },
+  {
+    id:'pz',name:'진정 물약',emo:'🫙',potionColor:'#3a8acc',en:'Draught of Peace',
+    story_snape:'O.W.L. 시험 전에 멘탈이 무너지는 학생들에게 처방하는 약이다. 연한 파란빛이 나와야 한다 — 그렇지 않으면 잘못 만든 것이다.',
+    lore:'<b>진정 물약</b> — 마음을 가라앉히는 파란빛 마법약. 해너 애벗이 O.W.L. 시험장에서 처음 처방받았다. 레시피에는 두 재료가 필요하다: [차갑게 빛나는 파란 결정 가루]와 [보름달 밤에만 자라는 은빛 이끼].',
+    wrongReactions:{
+      ghostpowder:'유령 가루는 알코올에만 녹는다. 물에 넣으면 둥둥 떠다니며 약 색깔만 뿌옇게 만들 뿐이다.',
+      dragonscale:'용의 비늘이 이 약에? 고온에서나 녹는 비늘을 45도 물에 넣으면 그냥 바닥에 가라앉는다.',
+      nettles:'쐐기풀은 종기 치료약 재료다. 진정 물약에 넣으면 파란색이 아니라 흙탕물 색이 나온다.',
+      spiderleg:'거미 다리가 진정 효과를 낸다고 생각하나? 오히려 보는 사람이 더 불안해질 것이다.',
+      bezoar:'베조아르는 독 해독제다. 진정과는 아무 관계가 없다.',
+      lacewing:'레이스윙 파리는 알코올 전용이다. 물에서는 성분이 전혀 용해되지 않는다.'
+    },
+    correctReaction:'파란 수정과 달빛 이끼 — 정확하다. 두 용질이 물에 녹으면 파란빛 용액이 만들어진다.',
+    cSolutes:['bluecrystal','moonleaf'],cSolvent:'water',
+    aIng:['bluecrystal','ghostpowder','dragonscale','nettles','moonleaf','spiderleg','bezoar','lacewing'],
+    aSol:['water','alcohol','oil'],needCount:2,
+    solHint:'결정과 이끼 — 둘 다 물에 잘 녹는 성분이다. 가장 기본적인 용매를 선택하거라.',
+    res_S:'균등하게 자른 수정이 물에 완벽히 용해됐군. 파란빛도 균일하다.',
+    res_F:'이 약은 진정 효과가 없다. 잘못된 재료가 녹지 않고 떠다니고 있군.',
+    chop:{t:'slice',time:10,lbl:'⏱ 10초! 마커가 맞는 구간에 올 때 클릭!'},
+    stir:{seq:['cw','ccw','cw','ccw'],radius:35,lbl:'↻↺ 시계 → 반시계 → 시계 → 반시계!'},
+    heat:{target:45,range:12,dir:1,lbl:'🔥 45°C에 정확히 STOP!'},
+    job:{e:'🧪',t:'제약 연구원',d:'약 성분(용질)을 물에 정확한 농도로 녹여요! 농도가 달라지면 효과가 달라진답니다.'},
+    con:['bp|용질|💎🌙 파란수정+달빛이끼 — 두 용질이 물에 녹아야 파란빛 완성','bt|용매|💧 물 — 결정과 이끼를 균일하게 녹이는 용매','ba|용액|🔵 진정 물약 — 고른 농도의 파란 용액','bg|용해도|결정을 균등하게 잘라야 접촉 면적이 같아져 고른 용해도!']
+  },
+  {
+    id:'fx',name:'펠릭스 펠리시스',emo:'✨',potionColor:'#d4a017',en:'Felix Felicis',
+    story_snape:'행운의 물약이다. 만드는 데 6개월이 걸리며, 내 교직 생활 중 완성한 학생은 단 한 명뿐이었다. 황금빛 색이 나오지 않으면 처음부터 다시 시작해야 한다.',
+    lore:'<b>펠릭스 펠리시스</b> — 황금빛 행운의 물약. 별칭: Liquid Luck. 레시피에는 두 재료가 필요하다: [태양의 기운이 담긴 금빛 식물 잎]과 [불꽃 뱀이 낳은 알]. 두 재료 모두 일반 물에는 녹지 않고 특별히 정제된 용매에만 용해된다.',
+    wrongReactions:{
+      dragonscale:'용의 비늘은 이 온도에서 전혀 녹지 않는다. 황금빛 대신 회색빛만 나올 것이다.',
+      bluecrystal:'파란 수정은 진정 물약 재료다. 여기에 넣으면 행운이 아니라 우울함이 담긴다.',
+      ghostpowder:'유령 가루는 황금 정화수에 용해되지 않는다. 그냥 뿌연 구름만 만들 뿐이다.',
+      nettles:'쐐기풀은 일반 물에나 녹는다. 황금 정화수에서는 오히려 효능이 파괴된다.',
+      moonleaf:'달빛 이끼는 차가운 물 전용이다. 이 온도에서는 이끼가 끓어버린다.',
+      lacewing:'레이스윙 파리는 알코올 전용이다. 황금 정화수와 반응하면 검게 탄다.'
+    },
+    correctReaction:'황금 잎과 애쉬와인더 알 — 맞다. 두 용질이 황금 정화수에 용해되면 황금빛 행운이 완성된다.',
+    cSolutes:['sunleaf','ashwinder'],cSolvent:'golden_water',
+    aIng:['sunleaf','dragonscale','bluecrystal','ghostpowder','nettles','moonleaf','ashwinder','lacewing'],
+    aSol:['golden_water','water','alcohol'],needCount:2,
+    solHint:'황금 잎과 불꽃 뱀의 알은 일반 물에 녹지 않는다. 귀한 재료에는 특별히 정제된 용매가 필요하다.',
+    res_S:'황금빛이 완벽하다. 이번만큼은 인정하겠다.',
+    res_F:'황금빛이 아니라 탁한 색이군. 잘못된 재료가 제대로 용해되지 않은 결과다.',
+    chop:{t:'diag',time:9,lbl:'⏱ 9초! 대각선 방향으로 최대한 많이 드래그!'},
+    stir:{seq:['ccw','cw','ccw','cw','ccw'],radius:42,lbl:'↺↻ 5번 방향 교체! 중간 크기 원!'},
+    heat:{target:72,range:10,dir:1,lbl:'🔥 72°C 정확히 STOP!'},
+    job:{e:'🌟',t:'식품 과학자',d:'음료 색소나 향료(용질)를 물(용매)에 정확한 농도로 녹여요!'},
+    con:['bp|용질|🍃🥚 황금잎+불꽃알 — 두 용질이 황금정화수에 녹아야 행운 완성','bt|용매|✨ 황금 정화수 — 귀한 용질을 녹이는 특별한 용매','ba|용액|🟡 펠릭스 — 황금빛 용질이 특수 용매에 완전히 녹은 용액','bg|용해도|온도에 따라 용해도가 미세하게 달라져요!']
+  },
+  {
+    id:'wb',name:'투구꽃 마법약',emo:'🌿',potionColor:'#7a30c0',en:'Wolfsbane Potion',
+    story_snape:'늑대인간을 위한 약이다. 절대 설탕을 넣지 말 것 — 다른 용질이 들어가면 효능이 완전히 사라진다. 그리고 이것은 반드시 차갑게 제조해야 한다.',
+    lore:'<b>투구꽃 마법약</b> — 늑대인간이 보름달에 이성을 유지하게 해주는 약. 루핀 교수가 매달 복용했다. 레시피에는 두 재료가 필요하다: [보랏빛을 띠는 독초의 잎]과 [밤에만 자라는 은빛 이끼]. 두 재료 모두 뜨거운 물에서는 독성이 변질된다.',
+    wrongReactions:{
+      sunleaf:'황금 잎은 차가운 물에 녹지 않는다. 이 약에 넣으면 보라색 대신 탁한 황금색이 섞여 효능이 파괴된다.',
+      bluecrystal:'파란 수정은 진정 물약 재료다. 투구꽃과 섞이면 독성이 오히려 강해진다.',
+      ghostpowder:'유령 가루는 알코올 전용이다. 차가운 물에서는 전혀 녹지 않고 하얀 덩어리만 둥둥 뜬다.',
+      dragonscale:'용의 비늘이 이 온도에서 녹을 리 없다. 그냥 바닥에 침전된다.',
+      bezoar:'베조아르를 넣으면 투구꽃의 독성이 중화되어 마법약 효능이 사라진다. 정반대 효과가 나온다!',
+      lacewing:'레이스윙 파리는 알코올 전용이다. 차가운 물에서는 그냥 파리 시체가 떠다닌다.'
+    },
+    correctReaction:'투구꽃과 달빛 이끼 — 정확하다. 두 용질이 차가운 정화수에 안전하게 용해됐다.',
+    cSolutes:['wolfsbane_herb','moonleaf'],cSolvent:'cold_water',
+    aIng:['wolfsbane_herb','sunleaf','bluecrystal','ghostpowder','dragonscale','moonleaf','bezoar','lacewing'],
+    aSol:['cold_water','water','alcohol'],needCount:2,
+    solHint:'투구꽃과 달빛 이끼는 열에 약하다. 뜨거운 물에 넣으면 독성이 변질된다. 차갑게 유지되는 용매를 선택하거라.',
+    res_S:'투구꽃이 차가운 정화수에 완벽히 용해됐다. 루핀 교수도 만족했을 것이다.',
+    res_F:'보라색이 탁하다. 잘못된 재료가 제대로 용해되지 않아 효능이 손상됐군.',
+    chop:{t:'peel',time:10,lbl:'⏱ 10초! 꾹 누르고 아래로 드래그!'},
+    stir:{seq:['cw','ccw','cw','ccw','cw','ccw'],radius:55,lbl:'↻↺ 6번 방향 교체! 크게 정확하게!'},
+    heat:{target:25,range:10,dir:-1,lbl:'🧊 식혀서 25°C에서 STOP!'},
+    job:{e:'🏥',t:'임상 약학자',d:'특수 약(용질)을 차가운 용매에 녹여 환자용 용액을 만들어요!'},
+    con:['bp|용질|🌾🌙 투구꽃+달빛이끼 — 차가운 물에서만 제대로 녹는 두 용질','bt|용매|🧊 차가운 정화수 — 열에 약한 용질을 안전하게 녹이는 용매','ba|용액|🟣 투구꽃 마법약 — 온도 민감성 보라빛 용액','bg|용해도|용질마다 잘 녹는 온도가 다르다! 이 약은 낮은 온도에서 용해도 UP']
+  }
+];
+
+// ── STATE ──
+let G={ri:0,sc:0,ms:0,hRun:false,hRaf:null,chopScore:0,stirScore:0,heatScore:0,results:[],ingPenalty:0};
+
+function upStats(){
+  safeSet('stat-sc',G.sc);
+  safeSet('stat-ri',(G.ri+1)+'/'+RECIPES.length);
+  safeSet('stat-ms',G.ms);
+  const e=ge('stat-eff');
+  if(e){
+    const eff=calcEff(G.chopScore,G.stirScore,G.heatScore,G.ms,G.ingPenalty||0);
+    e.textContent=eff;
+    e.style.color={S:'#f0c040',A:'#5daa7a',B:'#4a90c4',C:'#aaa',F:'#c94040'}[eff];
+  }
+}
+function upProg(){
+  const p=ge('prog');
+  if(!p)return;
+  p.innerHTML=RECIPES.map((_,i)=>`<div class="pp ${i<G.ri?'done':i===G.ri?'active':''}"></div>`).join('');
+}
+function upStepDots(n){
+  const container=ge('sdots');
+  if(!container)return;
+  const names=['재료','용매','썰기','젓기','가열','완성!'];
+  container.innerHTML=names.map((s,i)=>`<span class="sd ${i<n?'done':i===n?'active':''}">${s}</span>`).join('');
+}
+
+function init(){
+  G={ri:0,sc:0,ms:0,hRun:false,hRaf:null,chopScore:0,stirScore:0,heatScore:0,results:[]};
+  show('screen-open');
+}
+function startGame(){G.ri=0;showStory();}
+
+// ── 이모지 피커 ──
+let selectedEmoji='✨';
+function toggleEmojiPicker(){
+  const p=ge('emoji-picker');if(!p)return;
+  const isOpen=p.style.display==='block';
+  if(!isOpen){
+    // JS로 그리드 동적 생성 (onclick 이벤트 확실하게 바인딩)
+    const grid=ge('emoji-grid');
+    if(grid&&!grid.dataset.built){
+      const emojis=['🌟','⚗️','💊','🔮','🌿','🧪','💎','🌙','🔥','❄️','⚡','🌈','🦋','🐉','🌸','💜','💛','💚','🩵','🌺','✨','🍀','🌊','🎆','⭐','🌀','🎇','🏆','🦄','🌠'];
+      grid.innerHTML='';
+      emojis.forEach(function(em){
+        const btn=document.createElement('div');
+        btn.textContent=em;
+        btn.style.cssText='font-size:24px;cursor:pointer;padding:6px 8px;border-radius:4px;border:1px solid rgba(184,134,11,.2);background:rgba(245,241,219,.6);transition:all .15s;user-select:none;-webkit-user-select:none';
+        btn.addEventListener('click',function(e){e.stopPropagation();selectEmoji(em);});
+        btn.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();selectEmoji(em);});
+        grid.appendChild(btn);
+      });
+      grid.dataset.built='1';
+    }
+  }
+  p.style.display=isOpen?'none':'block';
+}
+function selectEmoji(e){
+  selectedEmoji=e;
+  const d=ge('selected-emoji-display');if(d)d.textContent=e;
+  const p=ge('emoji-picker');if(p)p.style.display='none';
+  playClick();
+}
+
+// ── 마법약 이미지 — canvas로 그리기 ──
+function drawPotionImage(canvasId, recipe){
+  if(!recipe)return;
+  const cv=ge(canvasId);if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const w=cv.width,h=cv.height,cx=w/2,cy=h/2;
+  ctx.clearRect(0,0,w,h);
+
+  const col=(recipe&&recipe.potionColor)||'#2d7a4f';
+
+  // 병 그리기
+  // 병 몸체 (둥근 플라스크 형태)
+  ctx.fillStyle=col+'22';
+  ctx.strokeStyle=col+'88';
+  ctx.lineWidth=2;
+
+  // 병 몸통
+  ctx.beginPath();
+  ctx.ellipse(cx,cy+8,w*.32,h*.35,0,0,Math.PI*2);
+  ctx.fill();ctx.stroke();
+
+  // 병 목
+  ctx.fillStyle=col+'22';
+  ctx.strokeStyle=col+'88';
+  ctx.beginPath();
+  ctx.roundRect(cx-w*.1,cy-h*.38,w*.2,h*.2,4);
+  ctx.fill();ctx.stroke();
+
+  // 마개
+  ctx.fillStyle='rgba(160,120,60,.7)';
+  ctx.beginPath();
+  ctx.roundRect(cx-w*.12,cy-h*.44,w*.24,h*.1,3);
+  ctx.fill();
+
+  // 내용물 (반짝이는 액체)
+  const liq=ctx.createRadialGradient(cx-4,cy+4,2,cx,cy+8,w*.28);
+  liq.addColorStop(0,col+'ee');
+  liq.addColorStop(.5,col+'cc');
+  liq.addColorStop(1,col+'44');
+  ctx.fillStyle=liq;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy+8,w*.28,h*.3,0,0,Math.PI*2);
+  ctx.fill();
+
+  // 반짝이 하이라이트
+  ctx.fillStyle='rgba(255,255,255,.45)';
+  ctx.beginPath();
+  ctx.ellipse(cx-w*.08,cy-h*.02,w*.07,h*.1,-.4,0,Math.PI*2);
+  ctx.fill();
+
+  // 거품
+  for(let i=0;i<3;i++){
+    ctx.fillStyle='rgba(255,255,255,.35)';
+    ctx.beginPath();
+    ctx.arc(cx-8+i*8,cy-4+i*3,2+i,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // 이름 라벨
+  ctx.fillStyle=col;
+  ctx.font=`500 ${Math.round(h*.11)}px 'Noto Serif KR',serif`;
+  ctx.textAlign='center';
+  const _nm=(recipe.name||'').replace('마법약','').replace('물약','').trim().slice(0,5);if(_nm)ctx.fillText(_nm,cx,h*.94);
+}
+
+function showStory(){
+  const r=RECIPES[G.ri];
+  safeSet('st-en',r.en);safeSet('st-name',r.name);
+  // 이모지 대신 canvas 물약 이미지
+  const emoEl=ge('st-emo');
+  if(emoEl){
+    emoEl.innerHTML=`<canvas id="story-potion-img" width="110" height="110" style="display:block;margin:0 auto;border-radius:8px"></canvas>`;
+    setTimeout(()=>drawPotionImage('story-potion-img',r||{}),30);
+  }
+  safeHtml('st-snape',`<div class="story-box"><div class="sp">세베루스 스네이프 교수</div><div class="st">${r.story_snape}</div></div>`);
+  // 단서 1개만 표시 (첫 번째), 나머지는 게임 중 힌트로
+  // clues 없음 — 소설 서사에서 단서를 직접 찾아야 함
+  safeHtml('st-clues',`<div class="clue-box"><div class="clue-title">📖 레시피 서사에서 재료를 유추하라</div><div class="clue-item" style="font-size:13px;line-height:1.75">${r.lore||''}</div></div>`);
+  show('screen-story');
+}
+
+function goToGame(){
+  if(G.hRaf){cancelAnimationFrame(G.hRaf);G.hRaf=null;}
+  G.hRun=false;
+  G.ms=0;G.chopScore=0;G.stirScore=0;G.heatScore=0;G.ingPenalty=0;ingCorrect=false;
+  upProg();
+  upStepDots(0);
+  upStats();
+  const gc=ge('gc');if(gc)gc.innerHTML='';
+  show('screen-game');
+  renderPhase(0);
+}
+
+function renderPhase(ph){
+  upStepDots(ph);
+  upStats();
+  const r=RECIPES[G.ri];
+  const gc=ge('gc');
+  if(!gc)return;
+  gc.innerHTML='';
+  if(ph===0)buildIng(r,gc);
+  else if(ph===1)buildSol(r,gc);
+  else if(ph===2)buildChop(r,gc);
+  else if(ph===3)buildStir(r,gc);
+  else if(ph===4)buildHeat(r,gc);
+}
+
+// ── INGREDIENT — 소설 서사 → 자유 선택 → 잘못 골라도 진행 ──
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+let ingSelected=new Set();
+// 재료 선택 결과 저장 (정답 여부 → 효능 등급에 반영)
+let ingCorrect=false;
+
+function buildIng(r,gc){
+  ingSelected=new Set();ingCorrect=false;
+  const shuffled=shuffle(r.aIng);
+  const need=r.needCount||1;
+  gc.innerHTML=`
+    <div class="rbox"><div class="remo"><canvas id="rbox-potion-cv" width="60" height="60" style="border-radius:6px"></canvas></div><div>
+      <div class="rname">${r.name}</div>
+      <div class="rdesc" style="font-size:13px;line-height:1.7;color:#3a2a0a">${r.lore||''}</div>
+    </div></div>
+    <div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.2);border-radius:2px;padding:10px 14px;margin-bottom:10px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.7">
+      <span style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--gold)">📖 레시피 설명 속 단서를 찾아 재료를 골라라!</span>
+      <div style="margin-top:5px;font-size:13px;font-style:italic;color:#3a2a0a">${r.lore||''}</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a2a"><strong>${need}가지</strong>를 골라 확정하면 계속 진행돼요 — 틀려도 진행은 됩니다!</div>
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold3);font-weight:700" id="ing-counter">0 / ${need}</div>
+    </div>
+    <div class="ing-grid" id="ing-grid">${shuffled.map(id=>`
+      <div class="ic" id="ing-${id}" onclick="pickIng('${id}')" style="position:relative;cursor:pointer">
+        <span class="ie">${ING[id]?ING[id].e:'?'}</span>
+        <div class="in">${ING[id]?ING[id].n:'?'}</div>
+        <div class="ih" style="font-size:9px;color:#888780">${ING[id]?ING[id].h:''}</div>
+        <div id="ing-ck-${id}" style="display:none;position:absolute;top:-7px;right:-7px;background:var(--green2);color:#fff;border-radius:50%;width:20px;height:20px;font-size:12px;font-weight:700;align-items:center;justify-content:center;line-height:20px;text-align:center">✓</div>
+      </div>`).join('')}
+    </div>
+    <div id="ing-detail" style="background:rgba(26,18,8,.05);border:1px solid rgba(184,134,11,.18);border-radius:2px;padding:9px 12px;margin-top:8px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.65;display:none"></div>
+    <div id="ing-sel-list" style="margin-top:8px;min-height:20px;display:flex;gap:6px;flex-wrap:wrap"></div>
+    <div class="fb hint" id="fb-ing">재료를 클릭해서 설명을 읽어보세요!</div>
+    <button id="ing-ok-btn" onclick="confirmIng()" style="display:none;width:100%;margin-top:10px;padding:12px;border-radius:2px;border:2px solid var(--green2);background:rgba(45,122,79,.15);color:var(--green3);font-family:'Cinzel',serif;font-size:14px;font-weight:700;cursor:pointer">⚗️ 이 재료들로 시작하기!</button>`;
+  const _r=RECIPES[G.ri];setTimeout(()=>drawPotionImage('rbox-potion-cv',_r||{}),30);
+}
+
+let lastClickedIng='';
+function pickIng(id){
+  const r=RECIPES[G.ri];
+  const need=r.needCount||1;
+  const el=ge('ing-'+id);if(!el)return;
+
+  // 재료 설명 표시
+  const det=ge('ing-detail');
+  if(det&&ING[id]){det.style.display='block';det.innerHTML=`<strong>${ING[id].e} ${ING[id].n}</strong> — ${ING[id].desc}`;}
+
+  // 선택 토글
+  if(ingSelected.has(id)){
+    ingSelected.delete(id);el.classList.remove('ok');
+    const ck=ge('ing-ck-'+id);if(ck)ck.style.display='none';
+    playClick();
+  }else{
+    if(ingSelected.size>=need){
+      const f=ge('fb-ing');if(f){f.textContent=`⚠ ${need}가지를 이미 선택했어요! 다른 걸 빼고 선택하세요.`;f.className='fb bad';}
+      playWrong();return;
+    }
+    ingSelected.add(id);el.classList.add('ok');
+    const ck=ge('ing-ck-'+id);if(ck){ck.style.display='flex';}
+    playClick();
+    const rect=el.getBoundingClientRect();
+    burst(rect.left+rect.width/2,rect.top+rect.height/2,['#5daa7a','#f0c040','#fff'],8,50);
+  }
+  lastClickedIng=id;
+
+  // 카운터 + 선택 목록
+  const ctr=ge('ing-counter');if(ctr)ctr.textContent=ingSelected.size+' / '+need;
+  const sl=ge('ing-sel-list');
+  if(sl)sl.innerHTML=[...ingSelected].filter(sid=>ING[sid]).map(sid=>
+    `<span style="background:rgba(45,122,79,.12);border:1px solid var(--green2);border-radius:20px;padding:3px 10px;font-family:'Noto Serif KR',serif;font-size:11px;color:var(--green3)">${ING[sid].e} ${ING[sid].n}</span>`
+  ).join('');
+
+  // 확정 버튼
+  const btn=ge('ing-ok-btn');
+  if(btn){
+    btn.style.display=ingSelected.size===need?'block':'none';
+    const f=ge('fb-ing');
+    if(ingSelected.size===need&&f){f.textContent=`${need}가지 선택 완료! 확정 버튼을 눌러보세요.`;f.className='fb hint';}
+  }
+}
+
+function confirmIng(){
+  const r=RECIPES[G.ri];
+  const correctSet=new Set(r.cSolutes||[r.cSolute]);
+  const chosen=[...ingSelected];
+  const wrongChosen=chosen.filter(id=>!correctSet.has(id));
+  const rightChosen=chosen.filter(id=>correctSet.has(id));
+  ingCorrect=wrongChosen.length===0&&rightChosen.length===(r.needCount||1);
+
+  if(ingCorrect){
+    // ✅ 정답 — 화려한 반응
+    playSuccess();flashGreen();
+    burst(innerWidth/2,innerHeight*.4,['#f0c040','#5daa7a','#fff'],18,110);
+    const gc=ge('gc');
+    if(gc){
+      const snapeMsg=r.correctReaction||'"맞다."';
+      const banner=document.createElement('div');
+      banner.className='story-box';banner.style.cssText='margin-top:12px;animation:slidein .4s ease';
+      banner.innerHTML=`<div class="sp">스네이프 교수</div><div class="st">${snapeMsg}</div>`;
+      gc.appendChild(banner);
+    }
+    snapeCheer('correct');
+    notif('✓ 완벽한 재료 선택!');
+    setTimeout(()=>renderPhase(1),1600);
+  }else{
+    // ❌ 오답 — 하지만 진행은 됨! 스네이프가 잘못 고른 재료에 대해 혼냄
+    // 틀린 재료 빨갛게 + 흔들기
+    wrongChosen.forEach(id=>{
+      const el=ge('ing-'+id);
+      if(el){el.classList.remove('ok');el.classList.add('wrong');
+        setTimeout(()=>{if(el)el.classList.remove('wrong');},700);}
+    });
+    playWrong();flashRed();
+
+    // 스네이프 반응 — 잘못 고른 재료별 맞춤 대사
+    const wrongId=wrongChosen[0];
+    const reaction=wrongId&&r.wrongReactions&&r.wrongReactions[wrongId]
+      ?r.wrongReactions[wrongId]
+      :'"잘못된 재료를 선택했다. 이대로 만들면 제대로 된 약이 되지 않는다 — 하지만 네 선택이니 어쩔 수 없지."';
+
+    // 경고 배너 표시 후 진행
+    const gc=ge('gc');
+    if(gc){
+      const banner=document.createElement('div');
+      banner.style.cssText='background:rgba(139,32,32,.1);border:1px solid rgba(139,32,32,.4);border-radius:2px;padding:10px 13px;margin-top:10px;animation:slidein .35s ease';
+      banner.innerHTML=`<div style="font-family:'Cinzel',serif;font-size:10px;color:var(--red2);letter-spacing:.1em;margin-bottom:4px">⚠ 스네이프 교수의 경고</div><div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#712b13;line-height:1.7;font-style:italic">${reaction}</div>`;
+      gc.appendChild(banner);
+    }
+    // 잘못 고른 재료가 효능에 반영됨 (ms 증가 대신 ingPenalty 별도 기록)
+    G.ingPenalty=(G.ingPenalty||0)+wrongChosen.length;
+    upStats();
+    notif('⚠ 재료가 틀렸어요 — 스네이프의 경고를 읽고 진행합니다!','bad');
+    // 3초 후 자동으로 다음 단계 진행 (틀려도 약은 만들 수 있음!)
+    setTimeout(()=>renderPhase(1),2800);
+  }
+}
+
+
+
+// ── SOLVENT ──
+function buildSol(r,gc){
+  const shuffled=shuffle(r.aSol);
+  gc.innerHTML=`
+    <div style="background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.3);border-radius:2px;padding:10px 14px;margin-bottom:10px">
+      <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--green2);margin-bottom:4px">✓ 용질 확인 완료</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${[...ingSelected].map(sid=>`<span style="font-size:20px">${ING[sid]?ING[sid].e:'?'}</span><div><div style="font-family:'Noto Serif KR',serif;font-size:12px;font-weight:600;color:var(--ink)">${ING[sid]?ING[sid].n:'?'}</div></div>`).join('<span style="color:var(--gold2);font-size:14px;margin:0 4px">+</span>')}
+      </div>
+    </div>
+    <div style="background:rgba(184,134,11,.12);border:1px solid rgba(184,134,11,.35);border-radius:2px;padding:10px 14px;margin-bottom:10px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.7">
+      <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;color:var(--gold);margin-bottom:5px">💡 용매 선택 힌트</div>
+      ${(r.solHint||'').replace('💡 용매 힌트: ','').replace('💡 힌트: ','')}</div>
+    <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--gold2);margin-bottom:6px">— 이 용질을 녹일 올바른 용매를 골라라 —</div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="sol-list">
+      ${shuffled.map(id=>`
+      <div class="scard2" id="sol-${id}" onclick="pickSol('${id}')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:26px;flex-shrink:0">${SOL[id]?SOL[id].e:"?"}</span>
+          <div style="flex:1">
+            <div style="font-family:'Noto Serif KR',serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">${SOL[id]?SOL[id].n:"?"} <span style="font-size:10px;color:#6a5a3a;font-weight:400">${SOL[id]?SOL[id].d:""}</span></div>
+            <div style="font-family:'Noto Serif KR',serif;font-size:11px;color:#5a4a2a;line-height:1.5">${SOL[id]?SOL[id].desc:""}</div>
+            <div style="font-size:10px;color:var(--gold2);margin-top:3px;font-style:italic">${SOL[id]?SOL[id].hint:""}</div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="fb hint" id="fb-sol">각 용매의 특성을 읽고 이 용질에 맞는 것을 골라보세요</div>`;
+}
+function pickSol(id){
+  const r=RECIPES[G.ri];
+  document.querySelectorAll('.scard2').forEach(e=>e.classList.remove('ok','wrong'));
+  const el=ge('sol-'+id);
+  if(!el)return;
+  if(id===r.cSolvent){
+    el.classList.add('ok');
+    playSuccess();flashGreen();
+    const rect=el.getBoundingClientRect();
+    burstSuccess(rect.left+rect.width/2, rect.top+rect.height/2);
+    snapeCheer('correct');
+    notif('✓ 정답! '+SOL[id].n+' — 용매 확인!');
+    const f=ge('fb-sol');
+    if(f){f.textContent='✓ 정답! '+SOL[id].n+'이(가) 올바른 용매예요! 잠시 후 다음 단계로...';f.className='fb good';}
+    setTimeout(()=>renderPhase(2),1200);
+  }else{
+    el.classList.add('wrong');
+    G.ms++;upStats();
+    playWrong();flashRed();
+    const rect=el.getBoundingClientRect();
+    burstWrong(rect.left+rect.width/2, rect.top+rect.height/2);
+    snapeCheer('wrong');
+    notif('✗ 설명을 다시 읽어보세요!','bad');
+    const f=ge('fb-sol');
+    if(f){f.textContent='✗ 틀렸어요! 각 용매의 특성 설명을 잘 읽어보세요.';f.className='fb bad';}
+    setTimeout(()=>{const el2=ge('sol-'+id);if(el2)el2.classList.remove('wrong');},500);
+  }
+}
+
+// ── CHOP ──
+function buildChop(r,gc){
+  gc.innerHTML=`
+    <div class="hint-banner" id="hint-chop">${r.chop.lbl}</div>
+    <div class="timer-wrap"><div class="timer-bar" id="timer-bar" style="width:100%;background:#5daa7a"></div></div>
+    <div class="mini-wrap">
+      <canvas id="chop-cv" width="340" height="140"></canvas>
+      <div style="display:flex;gap:14px;width:100%;justify-content:center;margin-top:2px">
+        <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--ink)" id="chop-cnt">0</div><div style="font-size:10px;color:#6a5a3a">썰기 횟수</div></div>
+        <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2)" id="chop-time">${r.chop.time}</div><div style="font-size:10px;color:#6a5a3a">남은 초</div></div>
+        <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--blue2)" id="chop-acc">100</div><div style="font-size:10px;color:#6a5a3a">정확도%</div></div>
+      </div>
+      <div class="fb hint" id="fb-chop">클릭하면 타이머 시작!</div>
+    </div>`;
+  setTimeout(()=>initChop(r),80);
+}
+
+function initChop(r){
+  const cv=ge('chop-cv');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const type=r.chop.t, timeLimit=r.chop.time;
+  const potCol=['#2d7a4f','#1a4d7a','#8a6200','#5a2080'][G.ri];
+  let cnt=0,hits=0,attempts=0,done=false,started=false;
+  let markerX=170,mDir=1,mRaf=null;
+  let dsx=null,dsy=null,pa=false,psy=0,pY=0;
+  let timeLeft=timeLimit,timerInt=null;
+
+  function getAcc(){return attempts>0?Math.round(hits/attempts*100):100;}
+
+  function drawRapid(){
+    ctx.clearRect(0,0,340,140);
+    ctx.fillStyle='#f0e8d0';ctx.beginPath();ctx.roundRect(8,28,324,76,5);ctx.fill();
+    ctx.strokeStyle='rgba(184,134,11,.3)';ctx.lineWidth=1;ctx.strokeRect(8,28,324,76);
+    const maxS=40,sw=324/maxS;
+    for(let i=0;i<Math.min(cnt,maxS);i++){ctx.fillStyle=potCol+'77';ctx.fillRect(8+i*sw+.5,29,sw-.5,74);}
+    const _cs=r.cSolutes&&r.cSolutes.length?r.cSolutes[0]:(r.cSolute||null);ctx.font='26px serif';ctx.textAlign='center';ctx.fillText(_cs&&ING[_cs]?ING[_cs].e:'🌿',170,76);
+    const fine=Math.min(cnt/28,1);
+    ctx.fillStyle=`rgba(45,122,79,${fine*.65})`;ctx.beginPath();ctx.roundRect(8,28,324*fine,11,2);ctx.fill();
+    ctx.fillStyle='rgba(26,18,8,.5)';ctx.font='9px sans-serif';ctx.fillText(fine>0?Math.round(fine*100)+'% 곱게 썰림':'클릭하세요!',170,37);
+  }
+  function drawSlice(){
+    ctx.clearRect(0,0,340,140);
+    ctx.fillStyle='#e8f0f8';ctx.beginPath();ctx.roundRect(8,18,324,90,5);ctx.fill();
+    const z=8,sw=324/z;
+    const cur=cnt%z;
+    for(let i=0;i<z;i++){
+      if(i<cnt&&cnt>=z){}
+      const isT=(i===cur&&started);
+      ctx.strokeStyle=isT?potCol:'rgba(74,144,196,.3)';ctx.lineWidth=isT?2.5:.8;
+      ctx.beginPath();ctx.moveTo(8+i*sw,18);ctx.lineTo(8+i*sw,108);ctx.stroke();
+    }
+    for(let i=0;i<Math.min(cnt,z);i++){ctx.fillStyle=potCol+'55';ctx.fillRect(8+i%z*sw+1,19,sw-2,88);}
+    ctx.fillStyle='#1a4d7a';ctx.shadowBlur=8;ctx.shadowColor=potCol;
+    ctx.beginPath();ctx.arc(markerX,62,10,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='white';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('▼',markerX,67);
+    const tz=8+cur*sw;ctx.fillStyle=potCol;ctx.font='12px sans-serif';ctx.fillText('▼',tz+sw/2,14);
+    ctx.fillStyle='#3a2a0a';ctx.font='12px "Noto Serif KR"';ctx.fillText(cnt+'번 자름',170,128);
+  }
+  function drawDiag(){
+    ctx.clearRect(0,0,340,140);
+    ctx.fillStyle='#faf0d8';ctx.beginPath();ctx.roundRect(8,22,324,82,5);ctx.fill();
+    const sw=324/8;
+    for(let i=0;i<Math.min(cnt,20);i++){
+      ctx.strokeStyle=potCol+(i%2?'bb':'77');ctx.lineWidth=2;
+      ctx.beginPath();const xo=8+(i%8)*sw+6;ctx.moveTo(xo,26);ctx.lineTo(xo+22,98);ctx.stroke();
+    }
+    if(started&&cnt<20){
+      const ax=8+(cnt%8)*sw;ctx.strokeStyle='#c94040';ctx.lineWidth=3;ctx.shadowBlur=10;ctx.shadowColor='#c94040';
+      ctx.beginPath();ctx.moveTo(ax+5,24);ctx.lineTo(ax+28,100);ctx.stroke();ctx.shadowBlur=0;
+      ctx.fillStyle='#c94040';ctx.beginPath();ctx.moveTo(ax+28,100);ctx.lineTo(ax+18,86);ctx.lineTo(ax+38,86);ctx.closePath();ctx.fill();
+    }
+    ctx.fillStyle='#3a2a0a';ctx.font='12px "Noto Serif KR"';ctx.textAlign='center';ctx.fillText(cnt+'번 대각선',170,128);
+  }
+  function drawPeel(){
+    ctx.clearRect(0,0,340,140);
+    ctx.fillStyle='#ede8fa';ctx.beginPath();ctx.roundRect(120,5,100,128,5);ctx.fill();
+    ctx.strokeStyle='rgba(90,32,128,.4)';ctx.lineWidth=1.5;ctx.strokeRect(120,5,100,128);
+    const ph=128/8;
+    for(let i=0;i<Math.min(cnt,8);i++){ctx.fillStyle=potCol+'77';ctx.fillRect(120,5+i*ph,100,ph-1);}
+    if(pa&&pY>psy){ctx.fillStyle=potCol+'33';ctx.fillRect(120,psy,100,pY-psy);}
+    const cur=Math.min(cnt,8)*ph;
+    ctx.strokeStyle='#c94040';ctx.lineWidth=2.5;ctx.setLineDash([5,3]);
+    ctx.beginPath();ctx.moveTo(120,5+cur);ctx.lineTo(220,5+cur);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#3a2a0a';ctx.font='12px "Noto Serif KR"';ctx.textAlign='center';ctx.fillText(cnt+'번 깎기',170,138);
+  }
+  function draw(){
+    if(type==='rapid')drawRapid();
+    else if(type==='slice')drawSlice();
+    else if(type==='diag')drawDiag();
+    else drawPeel();
+  }
+  draw();
+
+  function startTimer(){
+    if(started)return;
+    started=true;
+    safeSet('hint-chop','⏱ 최대한 빠르게! 빠를수록 점수 UP!');
+    timerInt=setInterval(()=>{
+      timeLeft--;
+      safeSet('chop-time',timeLeft);
+      playTimerBeep(timeLeft); // 카운트다운 사운드!
+      const pct=timeLeft/timeLimit;
+      const tb=ge('timer-bar');
+      if(tb){tb.style.width=(pct*100)+'%';tb.style.background=pct>.5?'#5daa7a':pct>.25?'#d4a017':'#c94040';}
+      if(timeLeft<=0){clearInterval(timerInt);finishChop();}
+    },1000);
+    if(type==='slice'){
+      function mv(){if(done)return;markerX+=mDir*3.5;if(markerX>325)mDir=-1;if(markerX<18)mDir=1;draw();mRaf=requestAnimationFrame(mv);}
+      mv();
+    }
+  }
+
+  function addHit(ok2){
+    attempts++;if(ok2)hits++;else{G.ms++;playWrong();}
+    cnt++;
+    const acc=getAcc();
+    safeSet('chop-cnt',cnt);safeSet('chop-acc',acc);
+    upStats();draw();
+    if(ok2){G.sc+=4;safeSet('stat-sc',G.sc);
+      playChop(); // 썰기 사운드!
+      if(cnt%5===0){snapeCheer('chop_fast');}
+    }
+  }
+
+  function finishChop(){
+    if(done)return;done=true;
+    if(mRaf)cancelAnimationFrame(mRaf);
+    const acc=getAcc();
+    const countScore=Math.min(cnt/22*100,100);
+    G.chopScore=Math.round(countScore*.5+acc*.5);
+    const pts=Math.round(G.chopScore*1.8);G.sc+=pts;upStats();
+    playSuccess();
+    const cv2=ge('chop-cv');
+    if(cv2){const r2=cv2.getBoundingClientRect();burstSuccess(r2.left+r2.width/2,r2.top+r2.height/2);}
+    scorePop(pts,'#f0c040');
+    const fb=ge('fb-chop');
+    if(fb){fb.textContent='완료! 썰기 점수: '+G.chopScore+'점 ('+cnt+'번, 정확도 '+acc+'%) — 잘게 썰수록 용해도↑';fb.className='fb good';}
+    setTimeout(()=>renderPhase(3),1400);
+  }
+
+  // ── INPUT ──
+  if(type==='rapid'){
+    cv.onclick=()=>{if(done)return;if(!started)startTimer();addHit(true);};
+  }
+  else if(type==='slice'){
+    cv.onclick=()=>{
+      if(done)return;
+      if(!started)startTimer();
+      const z=8,sw=324/z,cur=cnt%z,zx=8+cur*sw;
+      const ok2=markerX>=zx+sw*.08&&markerX<=zx+sw*.92;
+      addHit(ok2);
+      if(!ok2)notif('✗ 타이밍을 맞추세요!','bad');
+    };
+  }
+  else if(type==='diag'){
+    const dn=e=>{if(done)return;if(!started)startTimer();const rect=cv.getBoundingClientRect();const cl=e.touches?e.touches[0]:e;dsx=(cl.clientX-rect.left)*(340/rect.width);dsy=(cl.clientY-rect.top)*(140/rect.height);};
+    const up=e=>{if(dsx===null)return;const rect=cv.getBoundingClientRect();const cl=e.changedTouches?e.changedTouches[0]:e;const ex=(cl.clientX-rect.left)*(340/rect.width),ey=(cl.clientY-rect.top)*(140/rect.height);const ok2=ex-dsx>14&&ey-dsy>14&&Math.abs((ex-dsx)-(ey-dsy))<72;addHit(ok2);if(!ok2)notif('✗ ↘ 방향으로!','bad');dsx=null;};
+    cv.addEventListener('mousedown',dn);cv.addEventListener('mouseup',up);
+    cv.addEventListener('touchstart',e=>{e.preventDefault();dn(e);},{passive:false});
+    cv.addEventListener('touchend',e=>{e.preventDefault();up(e);},{passive:false});
+  }
+  else{
+    const dn=e=>{if(done)return;if(!started)startTimer();pa=true;const rect=cv.getBoundingClientRect();const cl=e.touches?e.touches[0]:e;psy=(cl.clientY-rect.top)*(140/rect.height);pY=psy;draw();};
+    const mv2=e=>{if(!pa||done)return;const rect=cv.getBoundingClientRect();const cl=e.touches?e.touches[0]:e;pY=(cl.clientY-rect.top)*(140/rect.height);draw();};
+    const up=()=>{if(!pa)return;pa=false;const ok2=pY-psy>26;addHit(ok2);if(!ok2)notif('✗ 더 길게 아래로!','bad');draw();};
+    cv.addEventListener('mousedown',dn);cv.addEventListener('mousemove',mv2);cv.addEventListener('mouseup',up);
+    cv.addEventListener('touchstart',e=>{e.preventDefault();dn(e);},{passive:false});
+    cv.addEventListener('touchmove',e=>{e.preventDefault();mv2(e);},{passive:false});
+    cv.addEventListener('touchend',e=>{e.preventDefault();up();},{passive:false});
+  }
+}
+
+// ── STIR ──
+function buildStir(r,gc){
+  const isFirstStep=r.stir.seq[0]==='ccw';
+  gc.innerHTML=`
+    <div class="hint-banner" id="hint-stir">${r.stir.lbl}</div>
+    <div class="mini-wrap">
+      <canvas id="stir-cv" width="320" height="240"></canvas>
+      <div style="display:flex;gap:8px;width:100%;justify-content:center;align-items:center">
+        <button id="btn-ccw" onclick="btnStir('ccw')"
+          style="flex:1;padding:12px 0;font-size:18px;font-weight:700;border-radius:3px;border:2px solid #7a30c0;background:rgba(122,48,192,.15);color:#9a50c0;cursor:pointer;transition:all .15s;font-family:'Cinzel',serif;letter-spacing:.05em">
+          ↺ 반시계
+        </button>
+        <div style="text-align:center;min-width:70px">
+          <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--ink)" id="stir-prog">0/${r.stir.seq.length}</div>
+          <div style="font-size:10px;color:#6a5a3a">진행</div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold2);margin-top:3px" id="stir-racc">—</div>
+          <div style="font-size:10px;color:#6a5a3a">정확도</div>
+        </div>
+        <button id="btn-cw" onclick="btnStir('cw')"
+          style="flex:1;padding:12px 0;font-size:18px;font-weight:700;border-radius:3px;border:2px solid #2d7a4f;background:rgba(45,122,79,.15);color:#5daa7a;cursor:pointer;transition:all .15s;font-family:'Cinzel',serif;letter-spacing:.05em">
+          시계 ↻
+        </button>
+      </div>
+      <div style="font-size:11px;color:#888780;font-family:'Noto Serif KR',serif;text-align:center">버튼 클릭 또는 가마솥 위에서 마우스로 원을 그리세요!</div>
+      <div class="fb hint" id="fb-stir">현재 방향: <strong id="cur-dir-lbl">${r.stir.seq[0]==='ccw'?'↺ 반시계':'↻ 시계'}</strong>을 클릭하세요!</div>
+    </div>`;
+  setTimeout(()=>initStir(r),80);
+}
+
+// 버튼 젓기 — 전역 핸들러 (initStir 내부 변수에 접근하기 위해 이벤트 위임)
+let _stirBtnHandler=null;
+function btnStir(dir){if(_stirBtnHandler)_stirBtnHandler(dir);}
+
+function initStir(r){
+  const cv=ge('stir-cv');if(!cv)return;
+  const ctx=cv.getContext('2d'),cx=160,cy=128;
+  const seq=r.stir.seq,targetR=r.stir.radius;
+  const potColors=['#2d7a4f','#1a4d7a','#d4a017','#7a30c0'];
+  const pc=potColors[G.ri];
+  let stepIdx=0,done=false,prev=null,total=0,dragging=false;
+  let radErrSum=0,radN=0,stepRot=0,wrongCooldown=0;
+
+  // 버튼 방향 강조 업데이트
+  function updateBtnHighlight(){
+    const cur=seq[stepIdx]||'ccw';
+    const btnCC=ge('btn-ccw'),btnCW=ge('btn-cw');
+    const lbl=ge('cur-dir-lbl');
+    if(btnCC){btnCC.style.transform=cur==='ccw'?'scale(1.06)':'scale(1)';btnCC.style.opacity=cur==='ccw'?'1':'0.45';}
+    if(btnCW){btnCW.style.transform=cur==='cw'?'scale(1.06)':'scale(1)';btnCW.style.opacity=cur==='cw'?'1':'0.45';}
+    if(lbl)lbl.textContent=cur==='ccw'?'↺ 반시계':'↻ 시계';
+  }
+  updateBtnHighlight();
+
+  // 버튼 1회 = π/2 (90도) 진행 — 4번 누르면 1회전 완료
+  _stirBtnHandler=(dir)=>{
+    if(done||stepIdx>=seq.length)return;
+    const cur=seq[stepIdx];
+    if(dir===cur){
+      // 올바른 방향
+      radN++;radErrSum+=targetR*.3; // 버튼은 반경 정확도 75% 고정
+      const ra=Math.max(0,Math.round(100-radErrSum/Math.max(radN,1)*2.2));
+      safeSet('stir-racc',ra+'%');
+      stepRot+=Math.PI/2; // 버튼 1번 = 90도
+      total+=Math.PI/2;
+      drawAll(stepIdx/seq.length+stepRot/(Math.PI*2*seq.length));
+      playStirSound();
+      if(stepRot>=Math.PI*2){
+        stepRot-=Math.PI*2;stepIdx++;
+        safeSet('stir-prog',stepIdx+'/'+seq.length);
+        G.sc+=8;safeSet('stat-sc',G.sc);scorePop(8,'#5daa7a');
+        playDirChange();
+        const btnCv=cv.getBoundingClientRect();
+        burst(btnCv.left+btnCv.width/2,btnCv.top+btnCv.height*.4,['#5daa7a','#f0c040','#fff'],8,50);
+        if(stepIdx>=seq.length){
+          done=true;_stirBtnHandler=null;
+          const ra2=radN>0?Math.max(0,100-radErrSum/radN*2.2):75;
+          G.stirScore=Math.round(ra2);
+          const bp=Math.round(G.stirScore*1.4);G.sc+=bp;upStats();scorePop(bp,'#f0c040');
+          playSuccess();flashGreen();burstSuccess(btnCv.left+btnCv.width/2,btnCv.top+btnCv.height*.4);
+          snapeCheer('stir_good');
+          const fb=ge('fb-stir');if(fb){fb.textContent='✓ 젓기 완료! 정확도: '+Math.round(ra2)+'%';fb.className='fb good';}
+          safeSet('hint-stir','✓ 용질이 용매에 고르게 퍼지고 있어요!');
+          drawAll(1);setTimeout(()=>renderPhase(4),1000);
+        }else{
+          updateBtnHighlight();
+          notif(`${stepIdx}/${seq.length} ✓  ${seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계'}로!`);
+          const fb=ge('fb-stir');if(fb){fb.textContent=`${stepIdx}/${seq.length} 완료! 이제 ${seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계'} 버튼!`;fb.className='fb hint';}
+        }
+      } else {
+        const fb=ge('fb-stir');if(fb){fb.textContent=(cur==='ccw'?'↺ 반시계':'↻ 시계')+' 버튼을 계속 눌러요!';fb.className='fb hint';}
+      }
+    }else{
+      // 잘못된 방향
+      G.ms++;upStats();playWrong();flashRed();
+      const fb=ge('fb-stir');if(fb){fb.textContent='✗ 방향이 틀렸어요! '+(cur==='ccw'?'↺ 반시계':'↻ 시계')+'를 누르세요!';fb.className='fb bad';}
+      snapeCheer('stir_dir');
+    }
+  };
+
+  function drawAll(fillPct){
+    ctx.clearRect(0,0,320,240);
+    // shadow
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(cx,cy+18,80,15,0,0,Math.PI*2);ctx.fill();
+    // body gradient
+    const g=ctx.createLinearGradient(cx-80,0,cx+80,0);
+    g.addColorStop(0,'#252320');g.addColorStop(.5,'#403c38');g.addColorStop(1,'#252320');
+    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(cx-74,57);ctx.bezierCurveTo(cx-92,130,cx+92,130,cx+74,57);ctx.lineTo(cx+66,45);ctx.bezierCurveTo(cx+86,122,cx-86,122,cx-66,45);ctx.closePath();ctx.fill();
+    // liquid
+    if(fillPct>0){
+      const fh=52*Math.min(fillPct,1);
+      const lg=ctx.createRadialGradient(cx,124-fh/2,4,cx,124-fh/2,62);
+      lg.addColorStop(0,pc+'ff');lg.addColorStop(1,pc+'88');
+      ctx.fillStyle=lg;
+      ctx.beginPath();ctx.moveTo(cx-72,124-fh);ctx.bezierCurveTo(cx-62,133-fh,cx+62,133-fh,cx+72,124-fh);ctx.bezierCurveTo(cx+84,133,cx-84,133,cx-72,124-fh);ctx.fill();
+      // swirl animation
+      const swirl=stepIdx/seq.length+stepRot/(Math.PI*2*seq.length);
+      for(let i=0;i<3;i++){
+        ctx.save();ctx.translate(cx,124-fh/2-4);ctx.rotate(swirl*Math.PI*2+i*Math.PI*2/3);
+        ctx.strokeStyle=`rgba(255,255,255,${.12+i*.06})`;ctx.lineWidth=2;
+        ctx.beginPath();ctx.ellipse(0,0,24+i*10,6+i*3,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+      }
+      // bubbles
+      for(let i=0;i<5;i++){
+        ctx.fillStyle='rgba(255,255,255,.38)';ctx.beginPath();
+        ctx.arc(cx-26+i*13,122-fh-3+Math.sin(Date.now()/250+i)*2,2+Math.sin(i)*.7,0,Math.PI*2);ctx.fill();
+      }
+    }
+    // rim
+    const rg=ctx.createLinearGradient(cx-80,45,cx+80,45);rg.addColorStop(0,'#666');rg.addColorStop(.5,'#ccc');rg.addColorStop(1,'#666');
+    ctx.strokeStyle=rg;ctx.lineWidth=3.5;ctx.beginPath();ctx.moveTo(cx-66,45);ctx.bezierCurveTo(cx-86,122,cx+86,122,cx+66,45);ctx.stroke();
+    // target circle (subtle)
+    ctx.strokeStyle='rgba(200,184,138,.18)';ctx.lineWidth=2;ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(cx,cy,targetR,0,Math.PI*2);ctx.stroke();
+    // progress arc
+    if(stepRot>0&&stepIdx<seq.length){
+      const isCC=seq[stepIdx]==='ccw';
+      const arcLen=Math.min(stepRot,Math.PI*2);
+      const arcCol=isCC?'rgba(154,80,192,.8)':'rgba(93,170,122,.8)';
+      ctx.strokeStyle=arcCol;ctx.lineWidth=5;ctx.lineCap='round';
+      ctx.beginPath();
+      if(isCC){ctx.arc(cx,cy,targetR,-arcLen,0);}
+      else{ctx.arc(cx,cy,targetR,0,arcLen);}
+      ctx.stroke();ctx.lineCap='butt';
+    }
+    // direction arrow
+    if(stepIdx<seq.length){
+      const isCC=seq[stepIdx]==='ccw';
+      const aa=isCC?-0.55:0.55;
+      ctx.fillStyle=isCC?'#9a50c0':'#5daa7a';ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;
+      ctx.save();ctx.translate(cx+targetR*Math.cos(aa),cy+targetR*Math.sin(aa));
+      ctx.rotate(aa+(isCC?-Math.PI/2:Math.PI/2));
+      ctx.beginPath();ctx.moveTo(0,-9);ctx.lineTo(7,6);ctx.lineTo(-7,6);ctx.closePath();ctx.fill();
+      ctx.restore();ctx.shadowBlur=0;
+    }
+    // labels
+    ctx.fillStyle='rgba(200,184,138,.65)';ctx.font='600 12px Cinzel,serif';ctx.textAlign='center';
+    ctx.fillText(`${stepIdx}/${seq.length} 완료`,cx,220);
+    if(stepIdx<seq.length){
+      const isCC=seq[stepIdx]==='ccw';
+      ctx.fillStyle='rgba(200,184,138,.5)';ctx.font='11px "Noto Serif KR",sans-serif';
+      ctx.fillText((isCC?'↺ 반시계':'↻  시계')+'  ·  목표 반경 '+targetR+'px',cx,236);
+    }
+  }
+  drawAll(0);
+
+  function angle(e){
+    const rect=cv.getBoundingClientRect();
+    const cl=e.touches?e.touches[0]:e;
+    return Math.atan2((cl.clientY-rect.top)*(240/rect.height)-cy,(cl.clientX-rect.left)*(320/rect.width)-cx);
+  }
+  function dist(e){
+    const rect=cv.getBoundingClientRect();
+    const cl=e.touches?e.touches[0]:e;
+    const dx=(cl.clientX-rect.left)*(320/rect.width)-cx;
+    const dy=(cl.clientY-rect.top)*(240/rect.height)-cy;
+    return Math.sqrt(dx*dx+dy*dy);
+  }
+
+  function handleMove(e){
+    if(!dragging||done||prev===null||stepIdx>=seq.length)return;
+    const a=angle(e),r2=dist(e);
+    let da=a-prev;
+    if(da>Math.PI)da-=Math.PI*2;if(da<-Math.PI)da+=Math.PI*2;
+    // 너무 작은 움직임은 무시 (노이즈 방지)
+    if(Math.abs(da)<0.02){prev=a;return;}
+    const isCC=seq[stepIdx]==='ccw';
+    const movCC=da<0;
+    if(movCC===isCC){
+      // 올바른 방향 — 반경 정확도 측정
+      const err=Math.abs(r2-targetR);
+      radErrSum+=err;radN++;
+      const radAcc=Math.max(0,Math.round(100-radErrSum/Math.max(radN,1)*2.2));
+      safeSet('stir-racc',radAcc+'%');
+      const ra=ge('stir-racc');
+      if(ra)ra.style.color=radAcc>=75?'var(--green2)':radAcc>=50?'var(--gold2)':'var(--red2)';
+      stepRot+=Math.abs(da);
+      total+=Math.abs(da);
+      drawAll(stepIdx/seq.length+stepRot/(Math.PI*2*seq.length));
+      playStirSound(); // 젓기 사운드!
+      if(stepRot>=Math.PI*2){
+        stepRot-=Math.PI*2;stepIdx++;
+        safeSet('stir-prog',stepIdx+'/'+seq.length);
+        G.sc+=8;safeSet('stat-sc',G.sc);scorePop(8,'#5daa7a');
+        playDirChange(); // 방향 전환 사운드!
+        // 스텝 완료마다 가마솥 위치에서 작은 파티클
+        const cv2=ge('stir-cv');
+        if(cv2){const rr=cv2.getBoundingClientRect();burst(rr.left+rr.width/2,rr.top+rr.height*.4,['#5daa7a','#f0c040','#ffffff'],8,50);}
+        if(stepIdx>=seq.length){
+          done=true;
+          const radAcc2=radN>0?Math.max(0,100-radErrSum/radN*2.2):100;
+          G.stirScore=Math.round(radAcc2);
+          const bonusPts=Math.round(G.stirScore*1.4);G.sc+=bonusPts;upStats();scorePop(bonusPts,'#f0c040');
+          playSuccess();flashGreen();
+          if(cv2){const rr=cv2.getBoundingClientRect();burstSuccess(rr.left+rr.width/2,rr.top+rr.height*.4);}
+          snapeCheer('stir_good');
+          const fb=ge('fb-stir');if(fb){fb.textContent='✓ 젓기 완료! 반경 정확도: '+Math.round(radAcc2)+'%';fb.className='fb good';}
+          safeSet('hint-stir','✓ 용질이 용매에 고르게 퍼지고 있어요!');
+          drawAll(1);
+          setTimeout(()=>renderPhase(4),1000);
+        }else{
+          notif(`${stepIdx}/${seq.length} ✓  ${seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계'}로!`);
+          safeSet('stir-prog',stepIdx+'/'+seq.length);
+        }
+      }
+      // 올바른 방향일 때는 실수 카운터 쿨다운 초기화
+      wrongCooldown=0;
+    }else{
+      // 잘못된 방향 — 쿨다운으로 실수 급증 방지
+      // 연속으로 같은 방향 실수일 때만 1회 카운트 (프레임마다 X)
+      wrongCooldown++;
+      if(wrongCooldown===8){ // 약 8프레임 연속 틀렸을 때만 실수 1회
+        G.ms++;upStats();
+        const fb=ge('fb-stir');
+        if(fb){fb.textContent='↕ '+(seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계')+' 방향으로 돌려보세요!';fb.className='fb hint';}
+        notif((seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계')+' 방향으로!','bad');
+      }else if(wrongCooldown>8){
+        wrongCooldown=8; // 더 이상 올라가지 않도록 고정
+      }
+    }
+    prev=a;
+  }
+
+  cv.addEventListener('mousedown',e=>{if(done)return;dragging=true;prev=angle(e);});
+  cv.addEventListener('mouseup',()=>{dragging=false;prev=null;});
+  cv.addEventListener('mouseleave',()=>{dragging=false;prev=null;});
+  cv.addEventListener('mousemove',handleMove);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();if(done)return;dragging=true;prev=angle(e);},{passive:false});
+  cv.addEventListener('touchend',e=>{e.preventDefault();dragging=false;prev=null;},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();handleMove(e);},{passive:false});
+}
+
+// ── HEAT ──
+function buildHeat(r,gc){
+  gc.innerHTML=`
+    <div class="hint-banner" id="hint-heat">${r.heat.dir===1?'🔥 온도가 올라가요!':'🧊 온도가 내려가요!'} ${r.heat.target}°C에서 STOP!</div>
+    <div class="mini-wrap">
+      <canvas id="heat-cv" width="340" height="160"></canvas>
+      <button class="stop-btn" id="stop-btn" onclick="doStop()" disabled>🛑 &nbsp;S T O P</button>
+      <div class="fb hint" id="fb-heat">목표 온도 근처에서 STOP을 누르세요!</div>
+    </div>`;
+  setTimeout(()=>initHeat(r),80);
+}
+
+function initHeat(r){
+  const cv=ge('heat-cv');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const sb=ge('stop-btn');if(sb)sb.disabled=false;
+  G.hTemp=r.heat.dir===1?10:90;
+  G.hRun=true;
+  let speed=0.22,laps=0;
+
+  function drawBar(){
+    ctx.clearRect(0,0,340,160);
+    const pct=(G.hTemp-10)/90;
+    const bg=ctx.createLinearGradient(10,0,330,0);
+    bg.addColorStop(0,'#2a6aaa');bg.addColorStop(.38,'#1d9e75');bg.addColorStop(.68,'#c47a20');bg.addColorStop(1,'#c94040');
+    ctx.fillStyle='rgba(26,18,8,.18)';ctx.beginPath();ctx.roundRect(10,24,320,50,5);ctx.fill();
+    ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(10,24,320,50,5);ctx.fill();
+    ctx.fillStyle='rgba(8,6,2,.5)';ctx.beginPath();ctx.rect(10+Math.round(320*pct),24,320*(1-pct),50);ctx.fill();
+    // glow dot
+    const gx=10+320*pct;
+    const gc2=pct<.28?'#5ab0e8':pct<.52?'#5daa7a':pct<.78?'#d4a017':'#e85050';
+    ctx.fillStyle=gc2;ctx.shadowBlur=18;ctx.shadowColor=gc2;
+    ctx.beginPath();ctx.arc(gx,49,9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    // target line
+    const tx=10+320*((r.heat.target-10)/90);
+    ctx.strokeStyle='rgba(240,192,64,.85)';ctx.lineWidth=2.5;ctx.setLineDash([5,3]);
+    ctx.beginPath();ctx.moveTo(tx,14);ctx.lineTo(tx,82);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f0c040';ctx.shadowBlur=8;ctx.shadowColor='#f0c040';
+    ctx.font='bold 10px Cinzel,serif';ctx.textAlign='center';
+    ctx.fillText('목표 '+r.heat.target+'°C',tx,12);ctx.shadowBlur=0;
+    // big temp
+    const diff=Math.abs(G.hTemp-r.heat.target);
+    const tc=diff<4?'#5daa7a':diff<10?'#f0c040':'#c8b888';
+    ctx.fillStyle=tc;ctx.shadowBlur=diff<4?14:0;ctx.shadowColor='#5daa7a';
+    ctx.font='bold 30px Cinzel,serif';ctx.fillText(Math.round(G.hTemp)+'°C',170,120);ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(200,184,138,.5)';ctx.font='11px "Noto Serif KR",sans-serif';
+    ctx.fillText(r.heat.dir===1?'🔥 가열 중...':'🧊 냉각 중...',170,140);
+    ctx.textAlign='left';ctx.font='10px sans-serif';ctx.fillStyle='rgba(200,184,138,.4)';
+    ctx.fillText('10°C',12,157);ctx.textAlign='right';ctx.fillText('100°C',330,157);
+    // feedback
+    const fh=ge('fb-heat');
+    if(fh){
+      if(diff<3){
+        fh.textContent='🎯 지금! STOP!';fh.className='fb good';
+        setPulseBorder('green'); // 화면 테두리 초록 펄스
+      }
+      else if(diff<9){fh.textContent='⚡ 거의 다 왔어요! 준비하세요!';fh.className='fb hint';setPulseBorder('');}
+      else{setPulseBorder('');}
+    }
+  }
+
+  function tick(){
+    if(!G.hRun)return;
+    G.hTemp+=r.heat.dir*speed;
+    G.hTemp=Math.max(10,Math.min(100,G.hTemp));
+    drawBar();
+    playHeatTick(); // 글글글 가열/냉각 사운드
+    const diff=Math.abs(G.hTemp-r.heat.target);
+    if(diff<3)playNearTarget(); // 목표 근처 경고음
+    if((r.heat.dir===1&&G.hTemp>=98.5)||(r.heat.dir===-1&&G.hTemp<=11.5)){
+      G.hTemp=r.heat.dir===1?10:90;
+      laps++;speed=Math.min(speed+0.1,1.5);
+    }
+    G.hRaf=requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function doStop(){
+  if(!G.hRun)return;
+  G.hRun=false;
+  if(G.hRaf){cancelAnimationFrame(G.hRaf);G.hRaf=null;}
+  setPulseBorder(''); // 펄스 보더 제거
+  const r=RECIPES[G.ri];
+  const sb=ge('stop-btn');if(sb)sb.disabled=true;
+  const diff=Math.abs(G.hTemp-r.heat.target),rng=r.heat.range;
+  // 5단계 차등 점수: 딱 맞춤(±1°)/근접(±2°)/완벽(±범위30%)/훌륭(±범위55%)/통과/실패
+  const bullseye=diff<=1,nearPerfect=diff<=2,perfect=diff<rng*.3,ok=diff<rng*.55,partial=diff<rng;
+  let hScore,bonusLabel='';
+  if(bullseye){hScore=100;bonusLabel='🏆 ±1°C 이내 완벽 적중! 보너스 +50점!';}
+  else if(nearPerfect){hScore=100;bonusLabel='🎯 ±2°C 근접 적중! 보너스 +30점!';}
+  else if(perfect){hScore=85;bonusLabel='';}
+  else if(ok){hScore=70;}
+  else if(partial){hScore=40;}
+  else{hScore=8;}
+  G.heatScore=hScore;
+  let basePts=Math.round(hScore*2.5);
+  let bonusPts=bullseye?50:nearPerfect?30:0;
+  const pts=basePts+bonusPts;
+  G.sc+=pts;upStats();
+  const fh=ge('fb-heat');
+  if(fh){
+    if(bullseye){
+      fh.innerHTML='🏆 <strong>완벽한 적중!</strong> '+Math.round(G.hTemp)+'°C 정확히! +'+pts+'점 (보너스 +'+bonusPts+'점)';fh.className='fb good';
+      playStop(true);flashGreen();
+      burst(innerWidth/2,innerHeight*.4,['#f0c040','#ffd700','#5daa7a','#fff'],28,150);
+      burst(innerWidth*.3,innerHeight*.35,['#f0c040','#fff'],12,80);
+      burst(innerWidth*.7,innerHeight*.35,['#f0c040','#fff'],12,80);
+      snapeCheer('stop_perfect');notif('🏆 완벽 적중! +'+pts+'점');
+    }else if(nearPerfect){
+      fh.innerHTML='🎯 <strong>근접 적중!</strong> '+Math.round(G.hTemp)+'°C! +'+pts+'점 (보너스 +'+bonusPts+'점)';fh.className='fb good';
+      playStop(true);flashGreen();
+      burst(innerWidth/2,innerHeight*.4,['#f0c040','#ffd700','#5daa7a','#fff'],20,120);
+      snapeCheer('stop_perfect');notif('🎯 근접 적중! +'+pts+'점');
+    }else if(perfect){
+      fh.textContent='✓ 훌륭! '+Math.round(G.hTemp)+'°C +'+pts+'점';fh.className='fb good';
+      playStop(false);flashGreen();snapeCheer('stop_ok');notif('✓ 훌륭해요! +'+pts+'점');
+    }else if(ok){
+      fh.textContent='△ 좋아요! '+Math.round(G.hTemp)+'°C +'+pts+'점';fh.className='fb hint';
+      beep(523,.15,'sine',.12,0);notif('△ 좋아요! +'+pts+'점');
+    }else if(partial){
+      fh.textContent='△ 아쉽! '+Math.round(G.hTemp)+'°C → 목표 '+r.heat.target+'°C +'+pts+'점';fh.className='fb hint';
+      beep(440,.2,'sine',.12,0);notif('△ 통과 +'+pts+'점');
+    }else{
+      fh.textContent='✗ '+Math.round(G.hTemp)+'°C → 목표 '+r.heat.target+'°C';fh.className='fb bad';
+      playWrong();flashRed();notif('✗ 목표 온도를 맞추세요','bad');
+    }
+  }
+  scorePop(pts,'#f0c040');
+  setTimeout(()=>showResult(r),1400);
+}
+
+// ── RESULT ──
+function showResult(r){
+  const eff=calcEff(G.chopScore,G.stirScore,G.heatScore,G.ms,G.ingPenalty||0);
+  G.results.push({name:r.name,emo:r.emo,eff});
+  // 완성 연출
+  if(['S','A','B'].includes(eff)){
+    playComplete();
+    setTimeout(()=>starBurst(),200);
+    snapeCheer('complete');
+  } else {
+    beep(330,.3,'sawtooth',.08,0);
+  }
+  const snapeQ=(['S','A'].includes(eff))?r.res_S:r.res_F;
+  const cons=r.con.map(c=>{const[tp,lb,tx]=c.split('|');return`<div class="con-row"><span class="tag tag-${tp}">${lb}</span>${tx}</div>`;}).join('');
+  // 결과 화면 물약 이미지
+  const emoEl=ge('res-emo');
+  if(emoEl){
+    if(eff==='F'){emoEl.innerHTML='<div style="font-size:56px">💨</div>';}
+    else{emoEl.innerHTML=`<canvas id="res-potion-cv" width="80" height="80" style="border-radius:8px;display:block;margin:0 auto"></canvas>`;setTimeout(()=>drawPotionImage('res-potion-cv',r||{}),30);}
+  }
+  safeSet('res-title',eff==='F'?r.name+' 제조 실패...':r.name+' 완성!');
+  safeHtml('res-eff',`<span class="eff-badge eff-${eff}" style="font-size:15px;padding:6px 22px">등급 ${eff}</span>`);
+  safeSet('res-eff-desc',effDesc(eff,r.name));
+  safeHtml('res-con',`<div class="con-box"><div class="con-title">◆ 이 마법약으로 배운 개념</div>${cons}</div>`);
+  safeHtml('res-job',`<div class="job-wrap"><span class="je">${r.job.e}</span><div><div class="jt">실생활 직업: ${r.job.t}</div><div class="jd">${r.job.d}</div></div></div>`);
+  // 재료 선택 결과 표시
+  const ingSection=ingCorrect
+    ?`<div style="background:rgba(45,122,79,.1);border:1px solid rgba(45,122,79,.3);border-radius:2px;padding:9px 12px;margin-top:10px;font-family:'Noto Serif KR',serif;font-size:12px;color:#085041"><strong>✓ 재료 선택 완벽!</strong> 레시피 설명에서 올바른 재료를 찾아냈어요. 용질이 정확히 용해됩니다.</div>`
+    :`<div style="background:rgba(139,32,32,.08);border:1px solid rgba(139,32,32,.3);border-radius:2px;padding:9px 12px;margin-top:10px;font-family:'Noto Serif KR',serif;font-size:12px;color:#712b13"><strong>⚠ 재료 선택 오류</strong> — 잘못된 재료가 용액에 섞였어요. 레시피를 다시 읽어보면 다음에는 맞출 수 있어요! (효능 등급에 반영됨)</div>`;
+  safeHtml('res-snape',`<div class="story-box"><div class="sp">스네이프 교수</div><div class="st">${snapeQ}</div></div>`+ingSection);
+  const btn=ge('res-btn');if(btn)btn.textContent=G.ri<RECIPES.length-1?'다음 마법약으로 →':'🧪 나만의 마법약 만들기 →';
+  show('screen-result');
+}
+
+function nextPotion(){
+  G.ri++;
+  if(G.ri>=RECIPES.length) show('screen-custom-intro');
+  else showStory();
+}
+
+// ── CUSTOM POTION STATE ──
+let CP={name:'',emoji:'',chosenSolutes:[],chosenSolvent:'',
+  chopScore:0,stirScore:0,heatScore:0,ms:0,
+  targetTemp:50,tempDir:1,tempRange:16,
+  stirSeq:['ccw','cw','ccw','cw'],stirRadius:45,
+  allSolutes:['nettles','bluecrystal','sunleaf','wolfsbane_herb','moonleaf','ghostpowder','lacewing','ashwinder','bezoar',
+              'unicornhair','phoenixash','stardust','thundermoss','dragontear','shadowpowder','crystalrose','froglegs','spiderleg','dragonscale'],
+  allSolvents:['water','cold_water','golden_water','alcohol','oil'],
+  maxSolutes:3
+};
+let customIngSelected=new Set();
+
+function startCustomPotion(){
+  const nameEl=ge('custom-name');
+  const name=nameEl?nameEl.value.trim():'';
+  const emo=selectedEmoji||'✨'; // 전역 selectedEmoji 사용
+  if(!name){notif('마법약 이름을 입력해주세요!','bad');return;}
+  CP.name=name;CP.emoji=emo;
+  CP.ms=0;CP.chopScore=0;CP.stirScore=0;CP.heatScore=0;CP.effectDesc='';CP.effectScore=50;
+  CP.chosenSolutes=[];CP.chosenSolvent='';customIngSelected=new Set();
+  // 커스텀 게임 화면 상단 이름/이모지 업데이트
+  safeSet('custom-name-display',name);safeSet('custom-emo-display',emo);safeSet('stat-sc2',G.sc);
+  show('screen-custom-game');renderCustomPhase(0);
+}
+
+function renderCustomPhase(ph){
+  const gc=ge('custom-gc');if(!gc)return;gc.innerHTML='';
+  const dots=ge('custom-steps');
+  if(dots){const names=['재료','용매','효능 설명','썰기','젓기','가열'];dots.innerHTML=names.map((s,i)=>`<span class="sd ${i<ph?'done':i===ph?'active':''}">${s}</span>`).join('');}
+  if(ph===0)buildCustomIng(gc);
+  else if(ph===1)buildCustomSol(gc);
+  else if(ph===2)buildCustomEffect(gc);
+  else if(ph===3)buildCustomChop(gc);
+  else if(ph===4)buildCustomStir(gc);
+  else if(ph===5)buildCustomHeat(gc);
+}
+
+// 효능 설명 + 목표 온도 설정 단계
+function buildCustomEffect(gc){
+  const solutes=CP.chosenSolutes||[CP.chosenSolute];
+  const sv=SOL[CP.chosenSolvent]||{e:'?',n:'?',desc:''};
+  // 선택한 용질 목록 HTML
+  const soluteList=solutes.filter(id=>ING[id]).map(id=>
+    `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(184,134,11,.1)">
+      <span style="font-size:20px;flex-shrink:0">${ING[id].e}</span>
+      <div><div style="font-family:'Noto Serif KR',serif;font-size:12px;font-weight:600;color:var(--ink)">${ING[id].n}</div>
+      <div style="font-size:11px;color:#6a5a3a;line-height:1.5">${ING[id].desc.slice(0,65)}...</div></div>
+    </div>`
+  ).join('');
+
+  gc.innerHTML=`
+  <div class="story-box" style="margin-bottom:10px">
+    <div class="sp">스네이프 교수</div>
+    <div class="st">"선택한 재료들을 잘 보거라. 이 재료들이 어떻게 용해되는지 생각하고 효능을 설명해라. 그리고 마법약에 맞는 온도도 직접 설정하거라 — 온도가 맞아야 용해도가 완성된다."</div>
+  </div>
+
+  <div style="background:rgba(29,158,117,.06);border:1px solid rgba(29,158,117,.2);border-radius:2px;padding:10px 13px;margin-bottom:10px">
+    <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--green2);margin-bottom:8px">✓ 선택한 용질 (${solutes.length}가지)</div>
+    ${soluteList}
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(184,134,11,.15)">
+      <span style="font-size:20px">${sv.e}</span>
+      <div><div style="font-family:'Noto Serif KR',serif;font-size:12px;font-weight:600;color:var(--ink)">${sv.n} — 용매</div>
+      <div style="font-size:11px;color:#6a5a3a">${sv.desc.slice(0,55)}...</div></div>
+    </div>
+  </div>
+
+  <div style="background:rgba(139,32,32,.06);border:1px solid rgba(139,32,32,.2);border-radius:2px;padding:10px 13px;margin-bottom:10px">
+    <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--red2);margin-bottom:8px">🌡️ 목표 온도 직접 설정</div>
+    <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;margin-bottom:8px;line-height:1.6">
+      이 마법약은 몇 °C에서 완성될까요? 재료의 특성을 보고 직접 결정하세요!<br>
+      <span style="font-size:11px;color:#6a5a3a">뜨겁게 가열? 차갑게 냉각? 용질의 성질에 따라 달라져요</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a">
+          <input type="radio" name="heat-dir" value="1" checked onchange="updateHeatPreview()" style="margin-right:4px">🔥 가열 (온도 올리기)
+        </label>
+        <label style="font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a">
+          <input type="radio" name="heat-dir" value="-1" onchange="updateHeatPreview()" style="margin-right:4px">🧊 냉각 (온도 내리기)
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;width:100%;margin-top:6px">
+        <span style="font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;white-space:nowrap">목표 온도:</span>
+        <input type="range" id="temp-slider" min="15" max="95" value="50" step="5"
+          oninput="updateHeatPreview()"
+          style="flex:1">
+        <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--red2);min-width:54px;text-align:right" id="temp-display">50°C</div>
+      </div>
+      <div id="temp-hint" style="width:100%;font-family:'Noto Serif KR',serif;font-size:11px;color:#6a5a3a;line-height:1.5;margin-top:2px">
+        중간 온도 (50°C) — 식물 성분·결정 가루에 적합해요
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a2a;margin-bottom:6px">내 마법약 <strong>"${CP.name}"</strong>의 효능을 설명해주세요:</div>
+  <textarea id="effect-desc" placeholder="예: 이 마법약을 마시면 용기가 생긴다. 용의 눈물(용질)이 물(용매)에 녹아 만들어진 용액이 혈액에 흡수되어 심장을 강하게 만들기 때문이다..."
+    style="width:100%;min-height:85px;padding:10px 12px;border:1.5px solid rgba(184,134,11,.4);border-radius:2px;background:rgba(245,241,219,.8);font-family:'Noto Serif KR',serif;font-size:12px;color:var(--ink);outline:none;resize:vertical;line-height:1.7"></textarea>
+  <div style="font-size:11px;color:#888780;margin-top:4px;font-family:'Noto Serif KR',serif">💡 용질·용매·용해·녹는다·온도 같은 단어를 쓸수록 점수 UP!</div>
+  <button onclick="submitEffect()" style="width:100%;margin-top:10px;padding:12px;border-radius:2px;border:1.5px solid var(--gold);background:linear-gradient(135deg,#221800,#382400);color:var(--gold3);font-family:'Cinzel',serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.06em">효능 설명 완료 → 실험 시작!</button>
+  <div class="fb hint" id="cfb-eff" style="margin-top:8px">위 재료들을 참고해서 마법약의 효능을 설명해보세요!</div>`;
+}
+
+function updateHeatPreview(){
+  const slider=ge('temp-slider');
+  const display=ge('temp-display');
+  const hint=ge('temp-hint');
+  const radios=document.querySelectorAll('input[name="heat-dir"]');
+  let dir=1;
+  radios.forEach(r=>{if(r.checked)dir=parseInt(r.value);});
+  const temp=slider?parseInt(slider.value):50;
+  if(display)display.textContent=temp+'°C';
+  if(hint){
+    let msg='';
+    if(dir===-1){msg='🧊 냉각 모드 — 온도를 내리며 '+temp+'°C에서 STOP해야 해요. 열에 약한 재료에 적합!';}
+    else if(temp<=35){msg='🌡️ 낮은 온도 ('+temp+'°C) — 열에 민감한 성분이나 차가운 성질의 재료에 어울려요';}
+    else if(temp<=60){msg='🔥 중간 온도 ('+temp+'°C) — 식물 성분, 결정 가루, 대부분의 재료에 적합해요';}
+    else if(temp<=80){msg='🔥 높은 온도 ('+temp+'°C) — 단단한 성분이나 특수 마법 재료를 녹일 때 사용해요';}
+    else{msg='🔥🔥 매우 높은 온도 ('+temp+'°C) — 불꽃 계열 재료나 고온에서만 녹는 성분에 적합!';}
+    hint.textContent=msg;
+  }
+  if(display)display.style.color=dir===-1?'#1a4d7a':temp>70?'#c94040':temp>45?'#d4a017':'#2d7a4f';
+}
+
+function submitEffect(){
+  const ta=ge('effect-desc');
+  const desc=ta?ta.value.trim():'';
+  if(desc.length<10){
+    const f=ge('cfb-eff');if(f){f.textContent='✗ 더 자세하게 써주세요! 최소 10자 이상 설명해봐요.';f.className='fb bad';}
+    playWrong();return;
+  }
+  // 온도 설정 저장
+  const slider=ge('temp-slider');
+  const radios=document.querySelectorAll('input[name="heat-dir"]');
+  let dir=1;
+  radios.forEach(r=>{if(r.checked)dir=parseInt(r.value);});
+  const temp=slider?parseInt(slider.value):50;
+  CP.targetTemp=temp;
+  CP.tempDir=dir;
+  CP.tempRange=14; // 고정 허용 범위
+  CP.effectDesc=desc;
+  // 키워드 점수
+  const keywords=['용질','용매','용액','용해','녹','온도','물','성분','빠르','느리'];
+  let kwScore=0;keywords.forEach(k=>{if(desc.includes(k))kwScore+=10;});
+  CP.effectScore=Math.min(100,40+kwScore);
+  playSuccess();flashGreen();
+  const f=ge('cfb-eff');
+  if(f){f.textContent='✓ 완료! 목표 온도 '+temp+'°C '+(dir===1?'가열':'냉각')+' 설정됐어요. 이제 실험 시작!';f.className='fb good';}
+  setTimeout(()=>renderCustomPhase(3),1300);
+}
+
+function buildCustomIng(gc){
+  customIngSelected=new Set();
+  const shuffled=shuffle(CP.allSolutes);
+  const max=CP.maxSolutes||3;
+  gc.innerHTML=`
+  <div class="story-box" style="margin-bottom:10px"><div class="sp">스네이프 교수</div>
+  <div class="st">"이제 네 자신만의 마법약을 만들 차례다. 재료는 최대 ${max}가지까지 선택할 수 있다 — 어떤 효능의 마법약을 만들지 상상하며 골라보거라."</div></div>
+  <div style="background:rgba(184,134,11,.08);border:1px solid rgba(184,134,11,.2);border-radius:2px;padding:9px 12px;margin-bottom:8px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.65">
+    💡 재료를 클릭하면 설명이 나와요. 마음에 들면 다시 클릭해서 선택!<br>
+    <span style="font-size:11px;color:#6a5a3a">최대 <strong>${max}가지</strong>까지 고를 수 있어요 — 많이 고를수록 복잡한 마법약이 됩니다!</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <div id="ci-sel-list" style="display:flex;gap:4px;flex-wrap:wrap;flex:1"></div>
+    <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold3);font-weight:700;flex-shrink:0;margin-left:8px" id="ci-counter">0 / ${max}</div>
+  </div>
+  <div class="ing-grid" id="cing-grid">${shuffled.map(id=>`<div class="ic" id="cing-${id}" onclick="pickCustomIng('${id}')" style="position:relative;cursor:pointer">
+    <span class="ie">${ING[id]?ING[id].e:"?"}</span>
+    <div class="in">${ING[id]?ING[id].n:"?"}</div>
+    <div class="ih" style="font-size:9px;color:#888">${ING[id]?ING[id].h:""}</div>
+    <div id="ci-ck-${id}" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--green2);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:700;align-items:center;justify-content:center;line-height:18px;text-align:center">✓</div>
+  </div>`).join('')}</div>
+  <div id="cing-detail" style="background:rgba(26,18,8,.04);border:1px solid rgba(184,134,11,.15);border-radius:2px;padding:9px 12px;margin-top:8px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.65;display:none"></div>
+  <div class="fb hint" id="cfb-ing">재료를 클릭해 설명을 확인하고, 다시 클릭하면 선택!</div>
+  <button id="ci-ok-btn" onclick="confirmCustomIng()" style="display:none;width:100%;margin-top:10px;padding:12px;border-radius:2px;border:2px solid var(--green2);background:rgba(45,122,79,.15);color:var(--green3);font-family:'Cinzel',serif;font-size:14px;font-weight:700;cursor:pointer">⚗️ 이 재료들로 마법약 만들기!</button>`;
+}
+
+let lastCiClicked='';
+function pickCustomIng(id){
+  const max=CP.maxSolutes||3;
+  const el=ge('cing-'+id);if(!el)return;
+  // 상세 설명
+  const det=ge('cing-detail');
+  if(det&&ING[id]){det.style.display='block';det.innerHTML=`<strong>${ING[id].e} ${ING[id].n}</strong> — ${ING[id].desc}`;}
+  // 선택 토글
+  if(customIngSelected.has(id)){
+    customIngSelected.delete(id);el.classList.remove('ok');
+    const ck=ge('ci-ck-'+id);if(ck)ck.style.display='none';
+    playClick();
+  }else{
+    if(customIngSelected.size>=max){
+      const f=ge('cfb-ing');if(f){f.textContent='⚠ 최대 '+max+'가지까지만 선택할 수 있어요!';f.className='fb bad';}
+      playWrong();return;
+    }
+    customIngSelected.add(id);el.classList.add('ok');
+    const ck=ge('ci-ck-'+id);if(ck)ck.style.display='flex';
+    playClick();
+    const rect=el.getBoundingClientRect();
+    burst(rect.left+rect.width/2,rect.top+rect.height/2,['#5daa7a','#f0c040','#fff'],6,40);
+  }
+  lastCiClicked=id;
+  // 카운터 + 목록 업데이트
+  const ctr=ge('ci-counter');if(ctr)ctr.textContent=customIngSelected.size+' / '+max;
+  const sl=ge('ci-sel-list');
+  if(sl)sl.innerHTML=[...customIngSelected].filter(sid=>ING[sid]).map(sid=>
+    `<span style="background:rgba(45,122,79,.12);border:1px solid var(--green2);border-radius:20px;padding:2px 8px;font-family:'Noto Serif KR',serif;font-size:11px;color:var(--green3)">${ING[sid].e}</span>`
+  ).join('');
+  // 확정 버튼
+  const btn=ge('ci-ok-btn');
+  if(btn){
+    if(customIngSelected.size>=1){
+      btn.style.display='block';
+      const f=ge('cfb-ing');if(f){f.textContent=customIngSelected.size+'가지 선택! 확정 버튼을 눌러보세요.';f.className='fb hint';}
+    }else{btn.style.display='none';}
+  }
+}
+function confirmCustomIng(){
+  if(customIngSelected.size===0){notif('재료를 하나 이상 선택하세요!','bad');return;}
+  CP.chosenSolutes=[...customIngSelected];
+  CP.chosenSolute=CP.chosenSolutes[0]; // 첫 번째를 대표 용질로
+  playSuccess();flashGreen();
+  burst(innerWidth/2,innerHeight*.4,['#f0c040','#5daa7a','#fff'],14,90);
+  const f=ge('cfb-ing');if(f){f.textContent='✓ '+CP.chosenSolutes.length+'가지 용질 선택 완료! 이제 용매를 고릅니다...';f.className='fb good';}
+  setTimeout(()=>renderCustomPhase(1),1200);
+}
+
+function buildCustomSol(gc){
+  const shuffled=shuffle(CP.allSolvents);
+  gc.innerHTML=`
+  <div style="background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.25);border-radius:2px;padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">${(CP.chosenSolutes||[CP.chosenSolute]).filter(id=>ING[id]).map(id=>`<span style='font-size:20px'>${ING[id].e}</span><span style='font-family:Noto Serif KR,serif;font-size:12px;font-weight:600;color:var(--ink)'>${ING[id].n}</span>`).join('<span style="color:var(--gold2);margin:0 3px">+</span>')}</div><div style="font-size:11px;color:#5a4a2a;margin-top:2px">${(CP.chosenSolutes||[]).length}가지 용질 선택 완료</div>
+  </div>
+  <div style="background:rgba(184,134,11,.08);border:1px solid rgba(184,134,11,.2);border-radius:2px;padding:10px 13px;margin-bottom:10px;font-family:'Noto Serif KR',serif;font-size:12px;color:#3a2a0a;line-height:1.7">💡 선택한 용질의 특성을 생각하며 가장 잘 어울리는 <strong>용매</strong>를 골라보세요! 정답은 없어요 — 너의 선택이 마법약이 됩니다!</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    ${shuffled.map(id=>`<div class="scard2" id="csol-${id}" onclick="pickCustomSol('${id}')">
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px;flex-shrink:0">${SOL[id]?SOL[id].e:"?"}</span>
+      <div style="flex:1"><div style="font-family:'Noto Serif KR',serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">${SOL[id]?SOL[id].n:"?"} <span style="font-size:10px;color:#6a5a3a;font-weight:400">${SOL[id]?SOL[id].d:""}</span></div>
+      <div style="font-family:'Noto Serif KR',serif;font-size:11px;color:#5a4a2a;line-height:1.5">${SOL[id]?SOL[id].desc:""}</div>
+      <div style="font-size:10px;color:var(--gold2);margin-top:3px;font-style:italic">${SOL[id]?SOL[id].hint:""}</div></div></div>
+    </div>`).join('')}
+  </div>
+  <div class="fb hint" id="cfb-sol">용질에 어울리는 용매를 골라보세요!</div>`;
+}
+function pickCustomSol(id){
+  document.querySelectorAll('.scard2').forEach(e=>e.classList.remove('ok'));
+  const el=ge('csol-'+id);if(!el)return;el.classList.add('ok');CP.chosenSolvent=id;
+  if(id==='cold_water'){CP.targetTemp=22;CP.tempDir=-1;CP.tempRange=12;}
+  else if(id==='golden_water'){CP.targetTemp=68;CP.tempDir=1;CP.tempRange=10;}
+  else if(id==='alcohol'){CP.targetTemp=60;CP.tempDir=1;CP.tempRange=14;}
+  else if(id==='oil'){CP.targetTemp=80;CP.tempDir=1;CP.tempRange=14;}
+  else{CP.targetTemp=50;CP.tempDir=1;CP.tempRange=16;}
+  const f=ge('cfb-sol');if(f){f.textContent='✓ '+SOL[id].n+' 선택! 이제 재료를 썰어볼까요?';f.className='fb good';}
+  setTimeout(()=>renderCustomPhase(2),1200);
+}
+
+function buildCustomChop(gc){
+  gc.innerHTML=`
+  <div class="hint-banner">⏱ ${CP.chopTime||8}초 안에 최대한 빠르게! ${ING[CP.chosenSolute]?ING[CP.chosenSolute].n:"재료"}을(를) 잘게 다져라!</div>
+  <div class="timer-wrap"><div class="timer-bar" id="ctb" style="width:100%;background:#5daa7a"></div></div>
+  <div class="mini-wrap">
+    <canvas id="cchop-cv" width="340" height="140"></canvas>
+    <div style="display:flex;gap:14px;width:100%;justify-content:center;margin-top:2px">
+      <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--ink)" id="cc-cnt">0</div><div style="font-size:10px;color:#6a5a3a">썰기 횟수</div></div>
+      <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold2)" id="cc-time">${CP.chopTime||8}</div><div style="font-size:10px;color:#6a5a3a">남은 초</div></div>
+    </div>
+    <div class="fb hint" id="cfb-chop">클릭하면 타이머 시작!</div>
+  </div>`;
+  setTimeout(()=>{
+    const cv=ge('cchop-cv');if(!cv)return;const ctx=cv.getContext('2d');
+    const timeLimit=CP.chopTime||8;let cnt=0,done=false,started=false,timeLeft=timeLimit,timerInt=null;
+    function draw(){
+      ctx.clearRect(0,0,340,140);ctx.fillStyle='#f0e8d0';ctx.beginPath();ctx.roundRect(8,28,324,76,5);ctx.fill();
+      const sw=324/40;for(let i=0;i<Math.min(cnt,40);i++){ctx.fillStyle='#8a620077';ctx.fillRect(8+i*sw+.5,29,sw-.5,74);}
+      ctx.font='28px serif';ctx.textAlign='center';ctx.fillText((ING[CP.chosenSolute]?ING[CP.chosenSolute].e:"?"),170,76);
+      const fine=Math.min(cnt/28,1);ctx.fillStyle=`rgba(45,122,79,${fine*.65})`;ctx.beginPath();ctx.roundRect(8,28,324*fine,11,2);ctx.fill();
+      ctx.fillStyle='rgba(26,18,8,.5)';ctx.font='9px sans-serif';ctx.fillText(fine>0?Math.round(fine*100)+'% 곱게 썰림':'클릭하세요!',170,37);
+    }
+    draw();
+    cv.onclick=()=>{
+      if(done)return;
+      if(!started){started=true;safeSet('cfb-chop','⏱ 최대한 빠르게!');
+        timerInt=setInterval(()=>{timeLeft--;safeSet('cc-time',timeLeft);
+          const pct=timeLeft/timeLimit;const tb=ge('ctb');if(tb){tb.style.width=(pct*100)+'%';tb.style.background=pct>.5?'#5daa7a':pct>.25?'#d4a017':'#c94040';}
+          if(timeLeft<=0){clearInterval(timerInt);done=true;CP.chopScore=Math.min(Math.round(cnt/22*100),100);const pts=Math.round(CP.chopScore*1.8);G.sc+=pts;scorePop(pts,'#f0c040');
+            const f=ge('cfb-chop');if(f){f.textContent='완료! '+cnt+'번 썰었어요! 잘게 썰수록 용해도↑';f.className='fb good';}setTimeout(()=>renderCustomPhase(4),1300);}
+        },1000);}
+      cnt++;draw();safeSet('cc-cnt',cnt);G.sc+=3;
+    };
+  },80);
+}
+
+function buildCustomStir(gc){
+  gc.innerHTML=`
+  <div class="hint-banner">↺↻ 반시계→시계→반시계→시계 순서로! 가마솥을 잘 저어라!</div>
+  <div class="mini-wrap">
+    <canvas id="cstir-cv" width="320" height="240"></canvas>
+    <div style="display:flex;gap:16px;width:100%;justify-content:center">
+      <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--ink)" id="cs-prog">0/4</div><div style="font-size:10px;color:#6a5a3a">진행</div></div>
+      <div style="text-align:center"><div style="font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:var(--gold2)" id="cs-racc">—</div><div style="font-size:10px;color:#6a5a3a">반경 정확도</div></div>
+    </div>
+    <div class="fb hint" id="cfb-stir">가마솥 위에서 원을 그리세요!</div>
+  </div>`;
+  setTimeout(()=>{
+    const cv=ge('cstir-cv');if(!cv)return;const ctx=cv.getContext('2d'),cx=160,cy=128;
+    const seq=CP.stirSeq,targetR=CP.stirRadius;
+    const pc={'water':'#2d7a4f','cold_water':'#1a4d7a','golden_water':'#d4a017','alcohol':'#7a1a6a','oil':'#8a6200'}[CP.chosenSolvent]||'#2d7a4f';
+    let stepIdx=0,done=false,prev=null,total=0,dragging=false,radErrSum=0,radN=0,stepRot=0,wrongCooldown=0;
+    function drawAll(fp){
+      ctx.clearRect(0,0,320,240);ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(cx,cy+18,80,15,0,0,Math.PI*2);ctx.fill();
+      const g=ctx.createLinearGradient(cx-80,0,cx+80,0);g.addColorStop(0,'#252320');g.addColorStop(.5,'#403c38');g.addColorStop(1,'#252320');
+      ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(cx-74,57);ctx.bezierCurveTo(cx-92,130,cx+92,130,cx+74,57);ctx.lineTo(cx+66,45);ctx.bezierCurveTo(cx+86,122,cx-86,122,cx-66,45);ctx.closePath();ctx.fill();
+      if(fp>0){const fh=52*Math.min(fp,1);const lg=ctx.createRadialGradient(cx,124-fh/2,4,cx,124-fh/2,62);lg.addColorStop(0,pc+'ff');lg.addColorStop(1,pc+'88');ctx.fillStyle=lg;ctx.beginPath();ctx.moveTo(cx-72,124-fh);ctx.bezierCurveTo(cx-62,133-fh,cx+62,133-fh,cx+72,124-fh);ctx.bezierCurveTo(cx+84,133,cx-84,133,cx-72,124-fh);ctx.fill();
+        const sw2=stepIdx/seq.length+stepRot/(Math.PI*2*seq.length);for(let i=0;i<3;i++){ctx.save();ctx.translate(cx,124-fh/2-4);ctx.rotate(sw2*Math.PI*2+i*Math.PI*2/3);ctx.strokeStyle=`rgba(255,255,255,${.12+i*.06})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,24+i*10,6+i*3,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
+        for(let i=0;i<5;i++){ctx.fillStyle='rgba(255,255,255,.38)';ctx.beginPath();ctx.arc(cx-26+i*13,122-fh-3+Math.sin(Date.now()/250+i)*2,2+Math.sin(i)*.7,0,Math.PI*2);ctx.fill();}}
+      const rg=ctx.createLinearGradient(cx-80,45,cx+80,45);rg.addColorStop(0,'#666');rg.addColorStop(.5,'#ccc');rg.addColorStop(1,'#666');ctx.strokeStyle=rg;ctx.lineWidth=3.5;ctx.beginPath();ctx.moveTo(cx-66,45);ctx.bezierCurveTo(cx-86,122,cx+86,122,cx+66,45);ctx.stroke();
+      ctx.strokeStyle='rgba(200,184,138,.18)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.beginPath();ctx.arc(cx,cy,targetR,0,Math.PI*2);ctx.stroke();
+      if(stepRot>0&&stepIdx<seq.length){const isCC=seq[stepIdx]==='ccw';const al=Math.min(stepRot,Math.PI*2);ctx.strokeStyle=isCC?'rgba(154,80,192,.8)':'rgba(93,170,122,.8)';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();if(isCC)ctx.arc(cx,cy,targetR,-al,0);else ctx.arc(cx,cy,targetR,0,al);ctx.stroke();ctx.lineCap='butt';}
+      if(stepIdx<seq.length){const isCC=seq[stepIdx]==='ccw';const aa=isCC?-0.55:0.55;ctx.fillStyle=isCC?'#9a50c0':'#5daa7a';ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;ctx.save();ctx.translate(cx+targetR*Math.cos(aa),cy+targetR*Math.sin(aa));ctx.rotate(aa+(isCC?-Math.PI/2:Math.PI/2));ctx.beginPath();ctx.moveTo(0,-9);ctx.lineTo(7,6);ctx.lineTo(-7,6);ctx.closePath();ctx.fill();ctx.restore();ctx.shadowBlur=0;}
+      ctx.fillStyle='rgba(200,184,138,.65)';ctx.font='600 12px Cinzel,serif';ctx.textAlign='center';ctx.fillText(`${stepIdx}/${seq.length} 완료`,cx,220);
+      if(stepIdx<seq.length){const isCC=seq[stepIdx]==='ccw';ctx.fillStyle='rgba(200,184,138,.5)';ctx.font='11px "Noto Serif KR",sans-serif';ctx.fillText((isCC?'↺ 반시계':'↻  시계')+'  ·  반경 '+targetR+'px',cx,236);}
+    }
+    drawAll(0);
+    function angle(e){const rect=cv.getBoundingClientRect();const cl=e.touches?e.touches[0]:e;return Math.atan2((cl.clientY-rect.top)*(240/rect.height)-cy,(cl.clientX-rect.left)*(320/rect.width)-cx);}
+    function dist(e){const rect=cv.getBoundingClientRect();const cl=e.touches?e.touches[0]:e;const dx=(cl.clientX-rect.left)*(320/rect.width)-cx,dy=(cl.clientY-rect.top)*(240/rect.height)-cy;return Math.sqrt(dx*dx+dy*dy);}
+    function hm(e){
+      if(!dragging||done||prev===null||stepIdx>=seq.length)return;
+      const a=angle(e),r2=dist(e);let da=a-prev;if(da>Math.PI)da-=Math.PI*2;if(da<-Math.PI)da+=Math.PI*2;
+      if(Math.abs(da)<0.02){prev=a;return;}
+      const isCC=seq[stepIdx]==='ccw';const movCC=da<0;
+      if(movCC===isCC){
+        const err=Math.abs(r2-targetR);radErrSum+=err;radN++;
+        const ra2=Math.max(0,Math.round(100-radErrSum/Math.max(radN,1)*2.2));safeSet('cs-racc',ra2+'%');const ra=ge('cs-racc');if(ra)ra.style.color=ra2>=75?'var(--green2)':ra2>=50?'var(--gold2)':'var(--red2)';
+        stepRot+=Math.abs(da);total+=Math.abs(da);drawAll(stepIdx/seq.length+stepRot/(Math.PI*2*seq.length));wrongCooldown=0;
+        if(stepRot>=Math.PI*2){stepRot-=Math.PI*2;stepIdx++;safeSet('cs-prog',stepIdx+'/'+seq.length);G.sc+=8;scorePop(8,'#5daa7a');
+          if(stepIdx>=seq.length){done=true;const ra3=radN>0?Math.max(0,100-radErrSum/radN*2.2):100;CP.stirScore=Math.round(ra3);const bp=Math.round(CP.stirScore*1.2);G.sc+=bp;
+            const fb=ge('cfb-stir');if(fb){fb.textContent='✓ 젓기 완료! 반경 정확도: '+Math.round(ra3)+'%';fb.className='fb good';}drawAll(1);setTimeout(()=>renderCustomPhase(5),1000);}
+          else{notif(`${stepIdx}/4 ✓  ${seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계'}로!`);}}
+      }else{wrongCooldown++;if(wrongCooldown===8){CP.ms++;const fb=ge('cfb-stir');if(fb){fb.textContent='↕ '+(seq[stepIdx]==='ccw'?'↺ 반시계':'↻ 시계')+' 방향으로!';fb.className='fb hint';}notif((seq[stepIdx]==='ccw'?'↺':'↻')+' 방향으로!','bad');}else if(wrongCooldown>8)wrongCooldown=8;}
+      prev=a;
+    }
+    cv.addEventListener('mousedown',e=>{if(done)return;dragging=true;prev=angle(e);});cv.addEventListener('mouseup',()=>{dragging=false;prev=null;});cv.addEventListener('mouseleave',()=>{dragging=false;prev=null;});cv.addEventListener('mousemove',hm);
+    cv.addEventListener('touchstart',e=>{e.preventDefault();if(done)return;dragging=true;prev=angle(e);},{passive:false});cv.addEventListener('touchend',e=>{e.preventDefault();dragging=false;prev=null;},{passive:false});cv.addEventListener('touchmove',e=>{e.preventDefault();hm(e);},{passive:false});
+  },80);
+}
+
+function buildCustomHeat(gc){
+  const dir=CP.tempDir;
+  gc.innerHTML=`
+  <div class="hint-banner">${dir===1?'🔥 온도가 올라가요!':'🧊 온도가 내려가요!'} ${CP.targetTemp}°C에서 STOP!</div>
+  <div class="mini-wrap">
+    <canvas id="cheat-cv" width="340" height="160"></canvas>
+    <button class="stop-btn" id="cstop-btn" onclick="doCustomStop()" disabled>🛑 &nbsp;S T O P</button>
+    <div class="fb hint" id="cfb-heat">목표 온도 근처에서 STOP!</div>
+  </div>`;
+  setTimeout(()=>{
+    const cv=ge('cheat-cv');if(!cv)return;const ctx=cv.getContext('2d');
+    const sb=ge('cstop-btn');if(sb)sb.disabled=false;
+    G.hTemp=dir===1?10:90;G.hRun=true;let speed=0.22,laps=0;
+    function drawBar(){
+      ctx.clearRect(0,0,340,160);const pct=(G.hTemp-10)/90;
+      const bg=ctx.createLinearGradient(10,0,330,0);bg.addColorStop(0,'#2a6aaa');bg.addColorStop(.38,'#1d9e75');bg.addColorStop(.68,'#c47a20');bg.addColorStop(1,'#c94040');
+      ctx.fillStyle='rgba(26,18,8,.18)';ctx.beginPath();ctx.roundRect(10,24,320,50,5);ctx.fill();ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(10,24,320,50,5);ctx.fill();
+      ctx.fillStyle='rgba(8,6,2,.5)';ctx.beginPath();ctx.rect(10+Math.round(320*pct),24,320*(1-pct),50);ctx.fill();
+      const gx=10+320*pct;const gc2=pct<.28?'#5ab0e8':pct<.52?'#5daa7a':pct<.78?'#d4a017':'#e85050';ctx.fillStyle=gc2;ctx.shadowBlur=18;ctx.shadowColor=gc2;ctx.beginPath();ctx.arc(gx,49,9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      const tx=10+320*((CP.targetTemp-10)/90);ctx.strokeStyle='rgba(240,192,64,.85)';ctx.lineWidth=2.5;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(tx,14);ctx.lineTo(tx,82);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#f0c040';ctx.shadowBlur=8;ctx.shadowColor='#f0c040';ctx.font='bold 10px Cinzel,serif';ctx.textAlign='center';ctx.fillText('목표 '+CP.targetTemp+'°C',tx,12);ctx.shadowBlur=0;
+      const diff=Math.abs(G.hTemp-CP.targetTemp);const tc=diff<4?'#5daa7a':diff<10?'#f0c040':'#c8b888';ctx.fillStyle=tc;ctx.shadowBlur=diff<4?14:0;ctx.shadowColor='#5daa7a';ctx.font='bold 30px Cinzel,serif';ctx.fillText(Math.round(G.hTemp)+'°C',170,120);ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(200,184,138,.5)';ctx.font='11px "Noto Serif KR",sans-serif';ctx.fillText(dir===1?'🔥 가열 중...':'🧊 냉각 중...',170,140);
+      ctx.textAlign='left';ctx.font='10px sans-serif';ctx.fillStyle='rgba(200,184,138,.4)';ctx.fillText('10°C',12,157);ctx.textAlign='right';ctx.fillText('100°C',330,157);
+      const fh=ge('cfb-heat');if(fh){const d2=Math.abs(G.hTemp-CP.targetTemp);if(d2<3){fh.textContent='🎯 지금! STOP!';fh.className='fb good';}else if(d2<9){fh.textContent='⚡ 거의 다 왔어요!';fh.className='fb hint';}}
+    }
+    function tick(){if(!G.hRun)return;G.hTemp+=dir*speed;G.hTemp=Math.max(10,Math.min(100,G.hTemp));drawBar();if((dir===1&&G.hTemp>=98.5)||(dir===-1&&G.hTemp<=11.5)){G.hTemp=dir===1?10:90;laps++;speed=Math.min(speed+0.1,1.5);}G.hRaf=requestAnimationFrame(tick);}
+    tick();
+  },80);
+}
+
+function doCustomStop(){
+  if(!G.hRun)return;G.hRun=false;if(G.hRaf){cancelAnimationFrame(G.hRaf);G.hRaf=null;}
+  const sb=ge('cstop-btn');if(sb)sb.disabled=true;
+  const diff=Math.abs(G.hTemp-CP.targetTemp),rng=CP.tempRange;
+  const bullseye=diff<=1,nearPerfect=diff<=2,perfect=diff<rng*.3,ok=diff<rng*.55,partial=diff<rng;
+  let hScore2;
+  if(bullseye)hScore2=100;else if(nearPerfect)hScore2=100;else if(perfect)hScore2=85;else if(ok)hScore2=70;else if(partial)hScore2=40;else hScore2=10;
+  CP.heatScore=hScore2;
+  let bPts=Math.round(hScore2*2.2),bonExtra=bullseye?50:nearPerfect?30:0;
+  const pts=bPts+bonExtra;G.sc+=pts;
+  const fh=ge('cfb-heat');
+  if(fh){
+    if(bullseye){fh.innerHTML='🏆 <strong>완벽 적중!</strong> +'+pts+'점 (보너스 +'+bonExtra+'점)';fh.className='fb good';notif('🏆 완벽! +'+pts+'점');playStop(true);flashGreen();burst(innerWidth/2,innerHeight*.4,['#f0c040','#fff'],20,120);}
+    else if(nearPerfect){fh.innerHTML='🎯 근접 적중! +'+pts+'점 (보너스 +'+bonExtra+'점)';fh.className='fb good';notif('🎯 근접! +'+pts+'점');playStop(true);flashGreen();}
+    else if(perfect){fh.textContent='✓ 훌륭! +'+pts+'점';fh.className='fb good';notif('✓ +'+pts+'점');}
+    else if(partial){fh.textContent='△ 아쉽! +'+pts+'점';fh.className='fb hint';notif('△ +'+pts+'점');}
+    else{fh.textContent='✗ 다음엔 더 잘할 수 있어요!';fh.className='fb bad';}}
+  scorePop(pts,'#f0c040');
+  setTimeout(()=>showCustomResult(),1500);
+}
+
+function showCustomResult(){
+  const effScore=CP.effectScore||50;
+  const combined=(CP.chopScore*.25+CP.stirScore*.3+CP.heatScore*.25+effScore*.2);
+  const eff=calcEff(Math.round(combined*1.2),CP.stirScore,CP.heatScore,CP.ms);
+  G.results.push({name:CP.name,emo:CP.emoji,eff,isCustom:true});
+
+  const solutes=(CP.chosenSolutes&&CP.chosenSolutes.length)?CP.chosenSolutes:[CP.chosenSolute].filter(Boolean);
+  const sv=SOL[CP.chosenSolvent]||{e:'',n:'알 수 없음',desc:'',hint:''};
+  const soluteNames=solutes.filter(function(id){return ING[id];}).map(function(id){return ING[id].n;});
+  const soluteEmojis=solutes.filter(function(id){return ING[id];}).map(function(id){return ING[id].e;});
+
+  const goodSolvents={water:['nettles','bluecrystal','moonleaf','bezoar','unicornhair','froglegs','crystalrose','stardust'],alcohol:['ghostpowder','lacewing','ashwinder','thundermoss','shadowpowder'],golden_water:['sunleaf','phoenixash'],cold_water:['wolfsbane_herb','moonleaf','stardust'],oil:['shadowpowder','dragonscale']};
+  const svSolutes=goodSolvents[CP.chosenSolvent]||[];
+  const matchCount=solutes.filter(function(id){return svSolutes.indexOf(id)>=0;}).length;
+  const matchRatio=solutes.length>0?matchCount/solutes.length:0;
+  const nameList=soluteNames.length?soluteNames.join(', '):'선택한 재료';
+
+  let chemText='';
+  if(matchRatio===1){
+    chemText=solutes.length>1
+      ?nameList+'은(는) 모두 '+sv.n+'에 잘 녹는 성분들이다. '+solutes.length+'가지 용질이 하나의 용매에 함께 녹아 복합 용액이 완성됐군.'
+      :nameList+'은(는) '+sv.n+'에 완벽하게 녹는다. 용질과 용매의 성질이 정확히 맞아 균일한 용액이 만들어졌다.';
+  }else if(matchRatio>=0.5){
+    const m=solutes.filter(function(id){return svSolutes.indexOf(id)>=0;}).map(function(id){return ING[id]?ING[id].n:'';}).join(', ');
+    const u=solutes.filter(function(id){return svSolutes.indexOf(id)<0;}).map(function(id){return ING[id]?ING[id].n:'';}).join(', ');
+    chemText=m+'은 '+sv.n+'에 잘 녹지만, '+u+'은(는) 이 용매와 잘 어울리지 않는다. 잘 안 녹는 재료는 흐릿한 침전물로 남을 것이다.';
+  }else if(CP.chosenSolvent==='golden_water'){
+    chemText='황금 정화수는 매우 귀한 용매다. '+nameList+'과의 조합은 일반적이지 않지만 실험 정신만큼은 인정하겠다.';
+  }else if(CP.chosenSolvent==='cold_water'){
+    chemText='차가운 정화수에는 열에 민감한 성분이 어울린다. '+nameList+'은(는) 이 용매에서 예상치 못한 반응을 일으킬 수 있다.';
+  }else{
+    chemText=nameList+'과 '+sv.n+'의 조합은 교과서에 없는 독창적인 시도다. 마법약의 역사는 이런 실험에서 시작됐다.';
+  }
+
+  const desc=CP.effectDesc||'';
+  const kwUsed=['용질','용매','용액','용해','녹','온도','성분','물','표면적','농도'].filter(function(k){return desc.indexOf(k)>=0;});
+  const pts=Math.round(effScore*1.5);G.sc+=pts;
+  const shortDesc=desc.slice(0,50)+(desc.length>50?'...':'');
+
+  let descText='';
+  if(!desc){
+    descText='효능 설명을 작성하지 않았군. 마법약을 만드는 사람은 그 효능을 설명할 수 있어야 한다.';
+  }else if(kwUsed.length>=3){
+    descText=shortDesc+' — 과학 용어('+kwUsed.slice(0,3).join(', ')+' 등)를 '+kwUsed.length+'가지나 사용했군. 용질이 용매에 녹는 원리와 효능을 연결지어 설명한 것이 인상적이다.';
+  }else if(kwUsed.length>=1){
+    descText=shortDesc+' — 과학 용어('+kwUsed.join(', ')+')를 사용한 것은 좋다. 왜 이 재료가 이 용매에 녹는지 원리와 효능을 더 연결했다면 완벽했을 것이다.';
+  }else{
+    descText=shortDesc+' — 효능 자체는 흥미롭지만 과학적 근거가 부족하다. 용질이 용매에 녹는 과정과 효능이 어떻게 연결되는지 설명해보거라.';
+  }
+
+  const effQmap={
+    S:'완성도가 매우 높다. '+CP.name+'은(는) 진짜 마법약이라 불릴 자격이 있다.',
+    A:'상당히 잘 만들었다. 용질과 용매의 선택, 제조 과정 모두 훌륭하다.',
+    B:'기본적인 용액의 조건을 갖췄다. '+CP.name+'은(는) 쓸 만한 마법약이 됐다.',
+    C:'아직 개선이 필요하다. 하지만 자신만의 마법약을 만들었다는 것 자체가 의미 있다.',
+    F:'이 결과물은 마법약이라 부르기 어렵다. 하지만 도전했다는 것은 인정하겠다.'
+  };
+  const effQ=effQmap[eff]||'';
+  const matchLabel=matchRatio===1?'완벽한 조합':matchRatio>=0.5?'부분 일치':'독창적 실험';
+
+  if(['S','A','B'].indexOf(eff)>=0){
+    try{playComplete();}catch(e){}
+    setTimeout(function(){try{starBurst();}catch(e){}},300);
+  }
+
+  const cr=ge('screen-custom-result');
+  if(!cr){show('screen-final');return;}
+  cr.innerHTML='';
+
+  // DOM으로만 안전하게 구성
+  function mk(tag,cls,txt){
+    const e=document.createElement(tag);
+    if(cls)e.className=cls;
+    if(txt!==undefined)e.textContent=txt;
+    return e;
+  }
+  function mks(tag,css,txt){
+    const e=document.createElement(tag);
+    if(css)e.style.cssText=css;
+    if(txt!==undefined)e.textContent=txt;
+    return e;
+  }
+  function ap(p){for(let i=1;i<arguments.length;i++)if(arguments[i])p.appendChild(arguments[i]);return p;}
+
+  const panel=mk('div','panel slidein');panel.style.cssText='max-width:520px;margin:auto';
+  const pi=mk('div','pi');panel.appendChild(pi);
+
+  // 상단
+  const top=mks('div','text-align:center;margin-bottom:14px');
+  ap(top,
+    mks('div','font-size:56px;margin-bottom:8px',CP.emoji),
+    mks('div','font-family:Cinzel,serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:3px',CP.name),
+    mks('div','font-size:12px;color:#6a5a3a;margin-bottom:8px',soluteEmojis.join('')+' + '+sv.e+' '+sv.n)
+  );
+  const badge=mk('span','eff-badge eff-'+eff,'등급 '+eff);badge.style.cssText='font-size:15px;padding:6px 22px';
+  ap(top, badge, mks('div','font-size:12px;color:#5a4a2a;margin:8px 0 0;line-height:1.65',effDesc(eff,CP.name)));
+  pi.appendChild(top);
+
+  // 조합 평가 박스
+  const box1=mk('div','story-box');box1.style.marginBottom='10px';
+  ap(box1, mk('div','sp','스네이프 교수 — 재료와 용매 조합 평가'), mk('div','st',chemText));
+  pi.appendChild(box1);
+
+  // 효능 설명 평가 박스
+  const box2=mk('div','story-box');box2.style.marginBottom='10px';
+  const sp2=mk('div','sp','스네이프 교수 — 효능 설명 평가 (+'+pts+'점)');
+  const fin=mks('div','margin-top:8px;padding:7px 10px;background:rgba(26,18,8,.06);border-radius:2px;font-size:11px;color:#5a4a2a;line-height:1.6','최종 평가: '+effQ);
+  ap(box2, sp2, mk('div','st',descText), fin);
+  pi.appendChild(box2);
+
+  // 분석표
+  const con=mk('div','con-box');con.style.marginBottom='14px';
+  con.appendChild(mk('div','con-title','내 마법약 분석표'));
+  function row(tagCls,label,val){
+    const r=mk('div','con-row');
+    const t=mk('span','tag '+tagCls,label);r.appendChild(t);
+    r.appendChild(document.createTextNode(' '+val));return r;
+  }
+  ap(con,
+    row('tag-bp','용질', soluteNames.join(' + ')||'?'),
+    row('tag-bt','용매', sv.e+' '+sv.n),
+    row('tag-ba','조합', matchLabel),
+    row('tag-bg','온도', CP.targetTemp+'°C '+(CP.tempDir===1?'가열':'냉각')+' · 적중 '+CP.heatScore+'점'),
+    row('tag-bp','설명', '과학 용어 '+kwUsed.length+'개 사용')
+  );
+  pi.appendChild(con);
+
+  // 버튼
+  const btn=mk('button','btn-gold','최종 결과 보기 →');
+  btn.style.cssText='width:100%;padding:12px;margin-top:4px';
+  btn.addEventListener('click',function(){showFinal();});
+  pi.appendChild(btn);
+
+  cr.appendChild(panel);
+  show('screen-custom-result');
+}
+
+// ── FINAL ──
+function showFinal(){
+  const gv={S:4,A:3,B:2,C:1,F:0};
+  const avg=G.results.reduce((s,p)=>s+gv[p.eff],0)/Math.max(G.results.length,1);
+  const ov=avg>=3.5?'S':avg>=2.5?'A':avg>=1.5?'B':avg>=.5?'C':'F';
+  const gradeText={S:'Outstanding — Dragon급 마법약 대가',A:'Exceeds Expectations — 능숙한 마법사',B:'Acceptable — 견습 마법사',C:'Poor — 아직 갈 길이 멀다',F:'Troll — 머글이 낫겠다'}[ov];
+  const customR=G.results.find(r=>r.isCustom);
+  const qText={S:`"...이것은 내 오랜 교직 생활에서 보기 드문 성과다. 특히 ${customR?.name||'나만의 마법약'}은(는) 인상적이었다. 용질, 용매, 용액, 용해도를 완전히 이해한 것 같군."`,A:`"나쁘지 않군. 용질과 용매, 용액의 관계를 이해한 것 같다. ${customR?.name||'직접 만든 마법약'}에서 실험 정신을 보았다."`,B:`"기본은 갖췄군. 자신만의 마법약까지 만들어낸 것은 칭찬할 만하다. 용해도와 온도의 관계를 더 연습하거라."`,C:`"아직 갈 길이 멀다. 하지만 포기하지 말거라 — 나만의 마법약에 도전한 용기는 인정한다."`,F:`"이 결과물들은... 하지만 직접 마법약을 만들어본 경험은 남았다. 그것으로 충분하다."`}[ov];
+  safeSet('fin-sc',G.sc+'점');safeSet('fin-grade',gradeText);
+  safeHtml('fin-quote',`<div class="story-box" style="text-align:left"><div class="sp">스네이프 교수</div><div class="st">${qText}</div></div>`);
+  const allR=[...G.results];
+  safeHtml('fin-potions',allR.map(p=>`<div style="background:rgba(26,18,8,.06);border:1px solid rgba(184,134,11,.18);border-radius:2px;padding:7px 4px;text-align:center;position:relative">${p.isCustom?'<div style="position:absolute;top:-6px;right:-4px;font-size:9px;background:var(--gold2);color:#1a0d00;border-radius:20px;padding:1px 5px;font-family:Cinzel,serif;font-weight:700">MY</div>':''}<div style="font-size:22px">${p.emo}</div><div style="font-family:\'Noto Serif KR\',serif;font-size:9px;color:#4a3a1a;margin:3px 0;word-break:keep-all">${p.name}</div><span class="eff-badge eff-${p.eff}" style="font-size:10px;padding:2px 8px">${p.eff}</span></div>`).join(''));
+  show('screen-final');
+  // 최종 화면 팡파르 + 별 파티클
+  setTimeout(()=>{
+    playComplete();
+    setTimeout(()=>starBurst(),300);
+    setTimeout(()=>starBurst(),800);
+  },400);
+}
+
+init();
+</script>
+<!-- CUSTOM INTRO -->
+<div class="screen hidden" id="screen-custom-intro">
+  <div class="panel slidein" style="max-width:520px">
+    <div class="pi" style="text-align:center">
+      <div style="font-size:60px;margin-bottom:8px" class="pf">🧪</div>
+      <div class="title-en">Chapter 5 — Your Own Creation</div>
+      <div class="title-kr">나만의 마법약 만들기</div>
+      <div class="story-box" style="text-align:left;margin:14px 0">
+        <div class="sp">세베루스 스네이프 교수</div>
+        <div class="st">"4가지 마법약을 모두 완성했군. 이제 마지막 과제다 — 배운 것을 바탕으로 너만의 마법약을 직접 설계하고 만들어라. 용질과 용매는 네가 선택한다. 결과는... 내가 직접 평가하겠다."</div>
+      </div>
+      <div class="clue-box" style="text-align:left;margin-bottom:16px">
+        <div class="clue-title">📋 나만의 마법약 정보</div>
+        <div class="clue-item">마법약의 이름을 짓고 이모지를 골라보세요</div>
+        <div class="clue-item">용질과 용매를 자유롭게 선택 — 조합에 따라 스네이프의 평가가 달라져요</div>
+        <div class="clue-item"><strong>이 마법약의 효능</strong>을 직접 써보세요 — 과학 용어(용질·용매·용해도)를 쓸수록 점수가 올라가요!</div>
+        <div class="clue-item">썰기·젓기·온도를 마치면 스네이프가 조합·설명·완성도를 모두 종합 평가해요</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a2a;margin-bottom:5px">마법약 이름</div>
+          <input id="custom-name" type="text" placeholder="예: 용기의 묘약" maxlength="15"
+            style="width:100%;padding:9px 12px;border:1.5px solid rgba(184,134,11,.4);border-radius:2px;background:rgba(245,241,219,.8);font-family:'Noto Serif KR',serif;font-size:13px;color:var(--ink);outline:none">
+        </div>
+        <div style="flex:none">
+          <div style="font-family:'Noto Serif KR',serif;font-size:12px;color:#5a4a2a;margin-bottom:5px">이모지 선택</div>
+          <div id="selected-emoji-display" style="font-size:28px;text-align:center;cursor:pointer;padding:6px 10px;border:1.5px solid rgba(184,134,11,.4);border-radius:2px;background:rgba(245,241,219,.8);min-width:56px" onclick="toggleEmojiPicker()">✨</div>
+        </div>
+      </div>
+      <div id="emoji-picker" style="display:none;margin-bottom:10px">
+        <div style="font-family:'Noto Serif KR',serif;font-size:11px;color:#5a4a2a;margin-bottom:6px">이모지를 선택하세요:</div>
+        <div id="emoji-grid" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+      <button class="btn-gold" onclick="startCustomPotion()" style="width:100%;padding:13px">나만의 마법약 만들기 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM GAME -->
+<div class="screen hidden" id="screen-custom-game">
+  <div class="panel" style="max-width:640px;margin:auto">
+    <div class="pi">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="font-size:28px" id="custom-emo-display">✨</div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--ink)" id="custom-name-display">나만의 마법약</div>
+          <div style="font-size:10px;color:#888780;font-family:'Cinzel',serif;letter-spacing:.08em">MY CUSTOM POTION</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <div style="background:#1a1208;border:1px solid var(--gold);border-radius:2px;padding:5px 10px;text-align:center">
+            <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--gold3)" id="stat-sc2">0</div>
+            <div style="font-size:9px;color:rgba(245,239,214,.4);text-transform:uppercase">점수</div>
+          </div>
+        </div>
+      </div>
+      <div class="sdots" id="custom-steps"></div>
+      <div id="custom-gc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM RESULT -->
+<div class="screen hidden" id="screen-custom-result"></div>
+
+</body>
+</html>
